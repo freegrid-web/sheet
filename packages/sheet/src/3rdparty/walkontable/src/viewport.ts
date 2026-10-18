@@ -10,6 +10,7 @@ import { objectEach } from './../../../helpers/object';
 import EventManager from './../../../eventManager';
 import ViewportColumnsCalculator from './calculator/viewportColumns';
 import RowGeometry from './calculator/rowGeometry';
+import type { AxisGeometry } from './calculator/axisGeometry';
 import ViewportRowsCalculator from './calculator/viewportRows';
 
 /**
@@ -21,7 +22,7 @@ class Viewport {
   declare oversizedRows: (number | undefined)[];
   /** Changes whenever `oversizedRows` changes (see getRowGeometry). */
   oversizedRowsVersion = 0;
-  #rowGeometry: { height: number; totalRows: number; version: number; geometry: RowGeometry } | null = null;
+  #rowGeometry: { height: number; totalRows: number; version: number; geometry: AxisGeometry } | null = null;
   declare oversizedColumnHeaders: (number | undefined)[];
   declare hasOversizedColumnHeadersMarked: Record<string, boolean | undefined>;
   declare clientHeight: number;
@@ -216,14 +217,28 @@ class Viewport {
     return this.columnHeaderHeight;
   }
 
-  /**
-   * @returns {Number}
-   */
+  /** Removes a rendered row's measured height, invalidating the shared snapshot when a height was present. */
+  clearOversizedRowHeight(row: number): void {
+    if (this.oversizedRows && this.oversizedRows[row]) {
+      // Keep the sparse cache sparse: geometry construction visits only the measured rows.
+      delete this.oversizedRows[row];
+      this.oversizedRowsVersion += 1;
+    }
+  }
+
+  /** Records a measured height and advances the shared snapshot revision only when the value changes. */
+  setOversizedRowHeight(row: number, height: number): void {
+    if (this.oversizedRows[row] !== height) {
+      this.oversizedRows[row] = height;
+      this.oversizedRowsVersion += 1;
+    }
+  }
+
   /**
    * The row geometry when every row has the same base height (only some rendered rows turned out taller), or `null`.
    * It is rebuilt only when the base height, the number of rows or the taller rows change.
    */
-  getRowGeometry(): RowGeometry | null {
+  getRowGeometry(): AxisGeometry | null {
     const engine = this.#engine;
     const totalRows = engine.getSetting('totalRows') as number;
     const rowHeightsUniform = engine.wtSettings.settings.rowHeightsUniform as () => boolean;

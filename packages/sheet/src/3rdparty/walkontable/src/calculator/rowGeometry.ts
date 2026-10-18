@@ -1,9 +1,11 @@
+import type { AxisGeometry } from './axisGeometry';
+
 /**
  * Row positions for a grid where every row has the same base height, except a few rows that turned out taller when
  * rendered (oversized rows). A row's position is `row × height` plus the extra height of the taller rows above it,
  * found with a binary search: no work per row.
  */
-class RowGeometry {
+class RowGeometry implements AxisGeometry {
   #height: number;
   #totalRows: number;
   /** The taller rows, in ascending order. */
@@ -29,9 +31,26 @@ class RowGeometry {
     });
   }
 
-  /** The height of a row. */
+  /** Row-specific aliases remain available to existing callers. */
   heightOf(row: number): number {
-    return this.#heights.get(row) ?? this.#height;
+    return this.sizeOf(row);
+  }
+
+  rowAt(offset: number): number {
+    return this.indexAt(offset);
+  }
+
+  rangeSize(from: number, to: number): number {
+    return to > from ? this.positionOf(to) - this.positionOf(from) : 0;
+  }
+
+  get totalSize(): number {
+    return this.positionOf(this.#totalRows);
+  }
+
+  /** The effective size of one row. */
+  sizeOf(index: number): number {
+    return this.#heights.get(index) ?? this.#height;
   }
 
   /** The position of a row's top edge: the heights of all the rows above it. */
@@ -54,7 +73,7 @@ class RowGeometry {
   }
 
   /** The last row whose top edge is at or above `offset` (0 when there is none). */
-  rowAt(offset: number): number {
+  indexAt(offset: number): number {
     let low = 0;
     let high = Math.max(0, this.#totalRows - 1);
 

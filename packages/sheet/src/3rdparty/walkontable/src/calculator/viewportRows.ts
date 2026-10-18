@@ -1,4 +1,4 @@
-import type RowGeometry from './rowGeometry';
+import type { AxisGeometry } from './axisGeometry';
 
 /**
  * Calculates indexes of rows to render OR rows that are visible.
@@ -15,7 +15,7 @@ class ViewportRowsCalculator {
     overrideFn?: ((calculator: ViewportRowsCalculator) => void) | null;
     onlyFullyVisible?: boolean;
     horizontalScrollbarHeight?: number;
-    geometry?: RowGeometry | null;
+    geometry?: AxisGeometry | null;
   };
   declare count: number;
   declare startRow: number | null;
@@ -42,7 +42,7 @@ class ViewportRowsCalculator {
    */
   constructor(viewportHeight: number, scrollOffset: number, totalRows: number,
               rowHeightFn: (row: number) => number | undefined, overrideFn?: ((calculator: ViewportRowsCalculator) => void) | null,
-              onlyFullyVisible?: boolean, horizontalScrollbarHeight?: number, geometry?: RowGeometry | null) {
+              onlyFullyVisible?: boolean, horizontalScrollbarHeight?: number, geometry?: AxisGeometry | null) {
     this.#options = {
       viewportHeight,
       scrollOffset,
@@ -111,19 +111,19 @@ class ViewportRowsCalculator {
     // Rows before `firstRow` end above the viewport, so in the loop below they would only set `startRow` and `endRow`
     // to themselves (when not only fully visible rows count). Skip them, keeping one row of margin.
     if (geometry && viewportHeight - horizontalScrollbarHeight > 0) {
-      firstRow = Math.min(totalRows, Math.max(0, geometry.rowAt(scrollOffset) - 1));
+      firstRow = Math.min(totalRows, Math.max(0, geometry.indexAt(scrollOffset) - 1));
 
       if (firstRow > 0 && !onlyFullyVisible) {
         this.startRow = firstRow - 1;
         this.endRow = firstRow - 1;
       }
       sum = geometry.positionOf(firstRow);
-      rowHeight = geometry.heightOf(Math.max(0, firstRow - 1));
+      rowHeight = geometry.sizeOf(Math.max(0, firstRow - 1));
     }
 
     // Calculate the number (start and end index) of rows needed
     for (let i = firstRow; i < totalRows; i++) {
-      rowHeight = geometry ? geometry.heightOf(i) : rowHeightFn(i) as number;
+      rowHeight = geometry ? geometry.sizeOf(i) : rowHeightFn(i) as number;
 
       if (isNaN(rowHeight)) {
         rowHeight = ViewportRowsCalculator.DEFAULT_HEIGHT;

@@ -124,7 +124,7 @@ class BottomOverlay extends Overlay {
     const geometry = this.wot.wtViewport.getRowGeometry();
 
     if (geometry !== null) {
-      return to > from ? geometry.positionOf(to) - geometry.positionOf(from) : 0;
+      return geometry.rangeSize(from, to);
     }
     let row = from;
     let sum = 0;
