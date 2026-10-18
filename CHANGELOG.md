@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Performance
+
+- Date and time column sorting is faster by parsing each compared primitive value at most once per row per sort.
+  Empty, invalid and equal values keep their existing order.
+
 ## 0.8.0 (2026-10-18)
 
 FreeSheet works with spreadsheet files and formats cells as a spreadsheet does: Excel (.xlsx) and CSV files read and

@@ -158,3 +158,21 @@ filenames. Inspect the CPU profile in developer tools and the timeline for natur
 Explicit-GC memory snapshots are disabled in diagnostic runs; heap fields are `null`, avoiding forced
 collections inside the recorded workload. Do not add nested/background GC durations together, interpret
 all layout events as avoidable forced layout, or combine profiled timings with baseline samples.
+
+## Date and time sorting
+
+`temporal-sort.mjs` times the synchronous production `columnSorting.sort()` call, including key preparation,
+row permutation and render. It uses deterministic shuffled date/time strings, a single temporal column and
+numeric key/identity columns, fixed dimensions, no automatic sizing and `observeChanges: false`. Each trial
+uses a fresh page/grid; source creation and construction are outside timing. The complete sorted identity
+sequence is checked against an independent numeric stable sort after timing. Time keys repeat above 86,400
+rows, also exercising stable ties. Date and time results are separate; do not combine them with numeric sorts.
+
+```sh
+tools/in-playwright-docker.sh node tools/performance/temporal-sort.mjs \
+  --rows 100,10000,100000 --trials 10 --warmup 2 --revision "$(git rev-parse HEAD)" \
+  --output tools/performance/results/temporal-before.json
+```
+
+Rebuild the candidate and repeat with a different output path. Preserve baseline/candidate bundles to repeat
+in reverse order on the same idle host. Raw samples, median/p95, browser version and bundle hashes are saved.
