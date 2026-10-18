@@ -352,6 +352,33 @@ describe('ContextMenu', () => {
     });
   });
 
+  describe('menu taller than the window', () => {
+    it('holds all its items in the Modern style, whose rows are taller', () => {
+      spec().$container.attr('data-fs-style', 'modern');
+      handsontable({ data: createSpreadsheetData(5, 5), contextMenu: true });
+      contextMenu();
+
+      const menu = $('.fs-context-menu').get(0);
+      const items = menu.querySelector('.htCore').getBoundingClientRect();
+
+      expect(menu.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(items.bottom);
+    });
+
+    it('stays in the window and scrolls inside', () => {
+      const items = Array.from({ length: 60 }, (_, index) => ({ key: `item${index}`, name: `Item ${index}` }));
+
+      handsontable({ data: createSpreadsheetData(5, 5), contextMenu: { items } });
+      contextMenu();
+
+      const menu = $('.fs-context-menu').get(0);
+      const box = menu.getBoundingClientRect();
+
+      expect(box.top).toBeGreaterThanOrEqual(0);
+      expect(box.bottom).toBeLessThanOrEqual(window.innerHeight);
+      expect(menu.scrollHeight).toBeGreaterThan(menu.clientHeight);
+    });
+  });
+
   describe('menu closing', () => {
     it('should close menu after click', () => {
       handsontable({
@@ -2250,7 +2277,7 @@ describe('ContextMenu', () => {
         expect(menuHot.getSelected()).toEqual([[0, 0, 0, 0]]);
       });
 
-      it('should scroll down, when user hits ARROW_DOWN for item in menu below the viewport', () => {
+      it('should scroll to the item chosen with ARROW_DOWN in a menu taller than the window', () => {
         handsontable({
           height: 100,
           contextMenu: {
@@ -2342,9 +2369,12 @@ describe('ContextMenu', () => {
         keyDownUp('arrow_down');
         keyDownUp('arrow_down');
 
-        const scrollHeight = typeof window.scrollY !== 'undefined' ? window.scrollY : document.documentElement.scrollTop;
+        // The menu fits the window and scrolls inside: the chosen item is in view.
+        const item = $('.fs-context-menu .htCore td.current').get(0).getBoundingClientRect();
+        const menu = $('.fs-context-menu').get(0).getBoundingClientRect();
 
-        expect(scrollHeight).not.toBe(0);
+        expect(item.bottom).toBeLessThanOrEqual(Math.min(menu.bottom, window.innerHeight) + 1);
+        expect(item.top).toBeGreaterThanOrEqual(menu.top - 1);
       });
 
       it('should select the first NOT DISABLED item in menu, when user hits ARROW_DOWN', () => {

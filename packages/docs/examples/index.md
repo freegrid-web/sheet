@@ -47,8 +47,8 @@ Every example runs here on the page. **Copy code** under an example copies it, a
   <a class="example-card" href="./conditional-formatting"><strong>Conditional formatting</strong></a>
   <a class="example-card" href="./filters"><strong>Filters</strong></a>
   <a class="example-card" href="./hidden-rows-and-columns"><strong>Hidden rows and columns</strong></a>
-  <a class="example-card" href="./row-groups"><strong>Row groups</strong></a>
-  <a class="example-card" href="./column-groups"><strong>Column groups</strong></a>
+  <a class="example-card" href="./row-groups"><strong>Row and column groups</strong></a>
+  <a class="example-card" href="./column-groups"><strong>Column header groups</strong></a>
   <a class="example-card" href="./nested-rows"><strong>Nested rows</strong></a>
   <a class="example-card" href="./merged-cells-and-comments"><strong>Merged cells and comments</strong></a>
   <a class="example-card" href="./files"><strong>Excel and CSV files</strong></a>

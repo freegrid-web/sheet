@@ -122,6 +122,21 @@
   cursor: pointer;
 }
 
+/* A border kind: its icon, then its name. */
+.fs-formatting-bar__list[data-item='borders'] button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fs-formatting-bar__list[data-item='borders'] button svg {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 .fs-formatting-bar__list button:hover {
   background: var(--fs-formatting-bar-hover-background);
 }
@@ -148,7 +163,8 @@
 }
 
 .fs-formatting-bar__size input {
-  width: 32px;
+  /* As wide as the value (set from the code), at least two digits. */
+  min-width: 32px;
   height: 22px;
   box-sizing: border-box;
   padding: 0 4px;

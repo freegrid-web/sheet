@@ -16,9 +16,8 @@ export const FORMATTING_BAR_ITEMS = ['font_family', 'font_size', 'bold', 'italic
 
 export type FormattingBarItem = typeof FORMATTING_BAR_ITEMS[number];
 
-const DEFAULT_ITEMS: FormattingBarItem[] = ['font_family', 'font_size', 'bold', 'italic', 'underline', 'fill_color',
-  'text_color', 'borders',
-  'alignment', 'number_format', 'format_painter', 'clear'];
+const DEFAULT_ITEMS: FormattingBarItem[] = ['font_family', 'font_size', 'bold', 'italic', 'underline', 'strikethrough',
+  'fill_color', 'text_color', 'borders', 'alignment', 'number_format', 'format_painter', 'clear'];
 
 /** The fonts of the font list (each shown in itself); `''` is the grid's own font. */
 export const FONT_FAMILIES = ['', 'Arial', 'Calibri', 'Cambria', 'Courier New', 'Georgia', 'Roboto', 'Segoe UI',
@@ -31,6 +30,29 @@ export const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 36, 48, 72]
 const BORDER_KINDS: [BorderKind, string][] = [['bottom', C.FORMAT_BORDER_BOTTOM], ['top', C.FORMAT_BORDER_TOP],
   ['left', C.FORMAT_BORDER_LEFT], ['right', C.FORMAT_BORDER_RIGHT], ['all', C.FORMAT_BORDER_ALL],
   ['outside', C.FORMAT_BORDER_OUTSIDE], ['thick_outside', C.FORMAT_BORDER_THICK_OUTSIDE], ['none', C.FORMAT_BORDER_NONE]];
+
+/** The lines each border kind draws, in a 16 × 16 icon (a faint grid under them shows the cells). */
+const BORDER_LINES: Record<BorderKind, string> = {
+  bottom: 'M2 13.5h12',
+  top: 'M2 2.5h12',
+  left: 'M2.5 2v12',
+  right: 'M13.5 2v12',
+  all: 'M2.5 2.5h11v11h-11zM8 2.5v11M2.5 8h11',
+  outside: 'M2.5 2.5h11v11h-11z',
+  thick_outside: 'M3 3h10v10H3z',
+  none: '',
+};
+
+/** The font size field is as wide as its value (`8`, `10.5`, `100`). */
+const fitSizeField = (field: HTMLInputElement): void => {
+  field.style.width = `calc(${Math.max(2, field.value.length)}ch + 12px)`;
+};
+
+/** A border kind's icon. */
+export const borderIcon = (kind: BorderKind): string => '<svg viewBox="0 0 16 16" aria-hidden="true">' +
+  '<path d="M2.5 2.5h11v11h-11zM8 2.5v11M2.5 8h11" fill="none" stroke="currentColor" stroke-opacity="0.35" ' +
+  'stroke-dasharray="1.5 1.5"/>' + (BORDER_LINES[kind] ? `<path d="${BORDER_LINES[kind]}" fill="none" ` +
+  `stroke="currentColor" stroke-width="${kind === 'thick_outside' ? 2 : 1.4}"/>` : '') + '</svg>';
 
 /** The number formats of the Number format list. */
 const NUMBER_FORMAT_LABELS: Record<string, string> = { general: C.FORMAT_NUMBER_GENERAL,
@@ -51,9 +73,7 @@ const ICONS: Record<string, string> = {
   right: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M6 7h8M2 10h12M6 13h8" stroke="currentColor"/></svg>',
   clear: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 13h8M3.5 9.5 9 4l3.5 3.5L7 13H5z" fill="none" ' +
     'stroke="currentColor" stroke-width="1.3"/></svg>',
-  borders: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5h11v11h-11zM8 2.5v11M2.5 8h11" fill="none" ' +
-    'stroke="currentColor" stroke-dasharray="1.5 1.5"/><path d="M2 13.5h12" stroke="currentColor" stroke-width="1.6"/>' +
-    '</svg>',
+  borders: borderIcon('bottom'),
   number_format: '<span class="fs-formatting-bar__text">123</span>',
   format_painter: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5h9v3.5H3zM12 4h1.5v3.5H8v2M7 9.5h2v5H7z" ' +
     'fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
@@ -182,6 +202,7 @@ class FormattingBar extends BasePlugin {
 
     bar.style.left = `${left + window.scrollX}px`;
     this.element = bar;
+    this.showBorder();
     document.addEventListener('keydown', this.#onKeyDown, true);
     this.refresh();
   }
@@ -228,6 +249,7 @@ class FormattingBar extends BasePlugin {
 
       size.value = /pt$/.test(style.fontSize || '') ? String(parseFloat(style.fontSize!)) :
         Number.isFinite(pixels) ? String(Math.round(pixels * 0.75 * 2) / 2) : '';
+      fitSizeField(size);
     }
     this.element?.querySelectorAll<HTMLElement>('[data-color-of]').forEach((line) => {
       line.style.background = this.#colors[line.dataset.colorOf as 'fill_color' | 'text_color'];
@@ -312,8 +334,23 @@ class FormattingBar extends BasePlugin {
       }
     });
     size?.addEventListener('focus', () => this.hot.unlisten());
+    size?.addEventListener('input', () => fitSizeField(size));
 
     return bar;
+  }
+
+  /**
+   * The borders button draws the border kind it applies: the last one chosen.
+   *
+   * @private
+   */
+  showBorder(): void {
+    const button = this.element?.querySelector<HTMLElement>('[data-action="borders"]');
+
+    if (button) {
+      button.innerHTML = borderIcon(this.#border);
+      button.dataset.border = this.#border;
+    }
   }
 
   /**
@@ -452,6 +489,10 @@ class FormattingBar extends BasePlugin {
       entry.setAttribute('role', 'menuitem');
       entry.dataset.value = value;
       entry.textContent = item === 'font_size' || (item === 'font_family' && value) ? label : phrase(label);
+      // Each border kind shows the lines it draws.
+      if (item === 'borders') {
+        entry.insertAdjacentHTML('afterbegin', borderIcon(value as BorderKind));
+      }
       // Each font is shown in itself.
       if (item === 'font_family' && value) {
         entry.style.fontFamily = value;
@@ -475,6 +516,7 @@ class FormattingBar extends BasePlugin {
       } else if (item === 'borders') {
         this.#border = value as BorderKind;
         setCellBorders(this.hot as unknown as FormattingGrid, this.#border);
+        this.showBorder();
       } else {
         setNumberFormat(this.hot as unknown as Parameters<typeof setNumberFormat>[0], NUMBER_FORMATS[value]);
       }

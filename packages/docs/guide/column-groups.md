@@ -4,6 +4,9 @@ api: [Column groups]
 
 # Column groups
 
+A title over several columns, such as a year over its quarters. (To fold any columns away as Excel's **Group**
+does, see [row and column groups](./row-groups#column-groups).)
+
 A column with `columns` of its own is a group. A header row above the column headers shows the group's `title` over
 its columns. Groups can be nested (a year over halves over quarters): each level adds a header row.
 

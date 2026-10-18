@@ -82,7 +82,7 @@ const grid = new FreeSheet(document.getElementById('grid'), {
 It has:
 
 - the font (each one shown in itself) and its size (pick one, or type a size and press Enter);
-- bold, italic and underline;
+- bold, italic, underline and strikethrough;
 - fill and text colors: a palette shows a color on the selected cells while the pointer is on it, a click keeps it,
   and closing the palette without a choice leaves the cells as they were. **More colors** opens a full color picker;
 - **Borders**: bottom, top, left, right, all, outside, thick outside, or none. The button draws the last one chosen;

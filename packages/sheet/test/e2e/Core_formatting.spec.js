@@ -183,6 +183,37 @@ describe('Core formatting', () => {
       $('.fs-formatting-bar').remove();
     });
 
+    it('draws each border kind as an icon, and the borders button as the last one chosen', async() => {
+      handsontable({ data: [[1, 2], [3, 4]], contextMenu: true, formattingBar: true });
+
+      selectCell(0, 0);
+      contextMenu();
+      await sleep(0);
+      $('.fs-formatting-bar [data-palette="borders"]').simulate('mousedown');
+
+      const entries = $('.fs-formatting-bar__list[data-item="borders"] [data-value]');
+
+      expect(entries.length).toBe(8);
+      expect(entries.filter((i, entry) => entry.querySelector('svg')).length).toBe(8);
+
+      entries.filter('[data-value="top"]').simulate('mousedown');
+
+      expect($('.fs-formatting-bar [data-action="borders"]').attr('data-border')).toBe('top');
+    });
+
+    it('fits the font size field to its value', async() => {
+      handsontable({ data: [[1, 2]], contextMenu: true, formattingBar: true,
+        cell: [{ row: 0, col: 0, style: { fontSize: '100.5pt' } }] });
+
+      selectCell(0, 0);
+      contextMenu();
+      await sleep(0);
+      const size = $('.fs-formatting-bar [data-font-size]').get(0);
+
+      expect(size.value).toBe('100.5');
+      expect(size.scrollWidth).toBeLessThanOrEqual(size.clientWidth);
+    });
+
     it('opens above the context menu and closes with it', async() => {
       handsontable({ data: [[1, 2], [3, 4]], contextMenu: true, formattingBar: true });
 
@@ -197,8 +228,8 @@ describe('Core formatting', () => {
       expect(bar.attr('role')).toBe('toolbar');
       expect(bar.get(0).getBoundingClientRect().bottom).toBeLessThanOrEqual(menu.top);
       expect(bar.find('[data-action]').map((i, b) => b.dataset.action).get())
-        .toEqual(['bold', 'italic', 'underline', 'fill_color', 'text_color', 'borders', 'left', 'center', 'right',
-          'format_painter', 'clear']);
+        .toEqual(['bold', 'italic', 'underline', 'strikethrough', 'fill_color', 'text_color', 'borders', 'left',
+          'center', 'right', 'format_painter', 'clear']);
       expect(bar.find('[data-palette="number_format"]').length).toBe(1);
 
       $('body').simulate('mousedown');

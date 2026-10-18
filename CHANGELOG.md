@@ -4,6 +4,8 @@
 
 ### Added
 
+- Formatting bar: strikethrough is one of the default buttons; the borders list shows an icon for each kind, and the
+  borders button shows the kind it draws (the last one chosen).
 - Excel (.xlsx) and CSV files, read and written by FreeSheet itself (no dependency): `exportFile(format, options)`
   (a Blob), `downloadFile(format, filename, options)`, `importFile(source, options)` (an .xlsx file replaces the
   document; CSV replaces the active sheet's data). An Excel file keeps the sheets, values and formulas (with their
@@ -91,6 +93,12 @@
 
 ### Fixed
 
+- The column menu's ▾ button stays next to the header's name when a column outline draws its gutter in the header
+  (it was drawn in the gutter), and headers with a gutter are no longer made again at every render.
+- A context menu that fits neither below nor above the cell stays in the window: as low as the window allows, and a
+  menu taller than the window scrolls inside. In the Modern style, the menu's frame holds all its items (the last ones
+  were drawn outside it).
+- The formatting bar's font size field is as wide as its value (`10.5`, `100`).
 - Text on a fill is readable in every theme: a cell style or a conditional formatting rule with a background and no
   text color gets dark text on a light fill and white text on a dark one (`--fs-text-on-light-fill`,
   `--fs-text-on-dark-fill`). Before, a light fill in the dark theme had light text.

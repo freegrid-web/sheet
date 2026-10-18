@@ -149,7 +149,8 @@ class DropdownMenu extends BasePlugin {
       button.type = 'button';
       button.tabIndex = -1;
       button.className = BUTTON_CLASS_NAME;
-      (TH.firstElementChild || TH).appendChild(button);
+      // Into the header's label box, not into what other plugins put before it (a column outline's gutter).
+      (TH.querySelector(':scope > .relative') || TH).appendChild(button);
     }
     button.setAttribute('aria-label', this.phrase(C.COLUMN_MENU_BUTTON));
     button.setAttribute('aria-haspopup', 'true');

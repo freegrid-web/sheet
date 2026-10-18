@@ -177,6 +177,18 @@ describe('Core column outline', () => {
   const header = column => spec().$container.find('.fs-clone-top thead tr:first-child th').eq(column + 1);
   const toggle = column => header(column).find('.fs-row-groups__toggle');
 
+  it('keeps the column menu button next to the header\'s label, under the gutter', () => {
+    const hot = grid({ dropdownMenu: true });
+
+    hot.getPlugin('columnOutline').groupColumns(1, 3);
+    const label = header(2).find('.colHeader').get(0).getBoundingClientRect();
+    const gutter = header(2).find('.fs-column-outline__gutter').get(0).getBoundingClientRect();
+    const button = header(2).find('.fs-dropdown-button').get(0).getBoundingClientRect();
+
+    expect(button.top).toBeGreaterThanOrEqual(gutter.bottom);
+    expect(Math.abs((button.top + button.bottom) / 2 - (label.top + label.bottom) / 2)).toBeLessThan(6);
+  });
+
   it('groups columns, draws the gutter above the headers and collapses a group with its button', () => {
     const hot = grid();
     const plugin = hot.getPlugin('columnOutline');

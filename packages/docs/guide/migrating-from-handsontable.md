@@ -66,7 +66,7 @@ With `<script>` tags, use `dist/languages/de-DE.js`.
   see the [roadmap](../project/roadmap).
 - **Column groups:** `nestedHeaders` (rows of labels with `colspan`) and `collapsibleColumns: [{ row, col, show }]`
   work, but the simpler form is groups in `columns`: a column with `columns`, `collapsible: true`, `collapsed: true`,
-  and `showWhenCollapsed: true` / `hidden: true` on a column (see [Column groups](./column-groups)). The older
+  and `showWhenCollapsed: true` / `hidden: true` on a column (see [Column header groups](./column-groups)). The older
   settings will be removed in `1.0`.
 
 ## Editor, renderer and validator names

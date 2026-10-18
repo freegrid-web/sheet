@@ -654,14 +654,15 @@ class TableView {
 
   /** Puts `<div class="relative"><span class="{className}">` into the header (once) and fills the span. */
   #appendHeader(index: number, TH: HTMLTableCellElement, className: string, content: (index: number) => string): void {
-    const container = TH.firstChild as HTMLElement | null;
+    // Plugins may put their own elements next to it (a column outline's gutter, before it).
+    const container = TH.querySelector(':scope > .relative') as HTMLElement | null;
 
-    if (container && hasClass(container, 'relative')) {
+    if (container) {
       this.updateCellHeader(container.querySelector(`.${className}`) as HTMLElement, index, content);
 
       return;
     }
-    if (container) {
+    if (TH.firstChild) {
       empty(TH);
     }
 

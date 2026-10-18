@@ -86,7 +86,7 @@ console.log(columns.getGroups()); // [{ from, to, level, collapsed }], columns o
 // columns.expandGroup(1), columns.showLevel(1)
 ```
 
-This is not the same as [column groups](./column-groups): those are header groups, a title over several columns,
+This is not the same as [column header groups](./column-groups): those are a title over several columns,
 made with `columns`. The outline groups any columns and hides them, as Excel's **Group** does.
 
 Rows and columns can have an outline at the same time.

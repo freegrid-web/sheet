@@ -90,7 +90,7 @@ class RowGroups extends Outline {
    * @private
    */
   decorateRowHeader(row: number, TH: HTMLTableCellElement): void {
-    const container = (TH.firstElementChild || TH) as HTMLElement;
+    const container = (TH.querySelector(':scope > .relative') || TH) as HTMLElement;
 
     TH.querySelector('.fs-row-groups__gutter')?.remove();
     TH.classList.remove('fs-row-groups__header');

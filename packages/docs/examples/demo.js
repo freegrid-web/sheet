@@ -5,16 +5,14 @@ import init, { Model } from '@ironcalc/wasm';
 // FreeSheet with every feature on, as a spreadsheet app: a toolbar, a workbook of three sheets, the formula bar, the
 // status bar and the side panel.
 
+// As a spreadsheet's menu: the formatting is in the formatting bar above it.
 const MENU = [
-  'row_above', 'row_below', 'col_left', 'col_right', '---------',
-  'remove_row', 'remove_col', 'hide_rows', 'show_rows', 'hide_columns', 'show_columns', '---------',
-  'undo', 'redo', '---------',
   'cut', 'copy', 'paste', 'paste_special', '---------',
-  'formatting', 'alignment', 'borders', 'conditional_formatting', 'data_validation', '---------',
-  'link', 'commentsAddEdit', 'commentsRemove', 'mergeCells', '---------',
-  'row_groups_group', 'row_groups_ungroup', 'column_outline_group', 'column_outline_ungroup', '---------',
-  'freeze', 'show_changes', 'commentsPanel',
-];
+  'row_above', 'row_below', 'col_left', 'col_right', '---------',
+  'remove_row', 'remove_col', '---------',
+  'commentsAddEdit', 'link', 'conditional_formatting', 'data_validation', '---------',
+  'freeze',
+]
 
 // The settings every sheet has.
 const COMMON = {
@@ -38,7 +36,9 @@ const COMMON = {
   columnOutline: true,
   findAndReplace: true,
   changeHistory: { user: 'You' },
-  minSpareRows: 3,
+  // Empty cells fill the window, as in a spreadsheet.
+  minRows: 60,
+  minCols: 26,
 };
 
 const header = { fontWeight: 'bold', background: '#d9e1f2', color: '#1f2937', borderBottom: '1px solid #8ea9db' };
@@ -57,11 +57,13 @@ const sales = {
   ],
   fixedRowsTop: 1,
   fixedColumnsLeft: 1,
-  stretchH: 'all',
   columnOutline: { groups: [{ from: 1, to: 3 }, { from: 5, to: 7 }] },
-  columns: Array.from({ length: 10 }, (_, col) => (col ? { type: 'numeric', numericFormat: { pattern: '0,0' } } : {})),
   cell: [
-    ...headerRow(10).map(cell => ({ ...cell, type: 'text' })),
+    ...headerRow(10),
+    // The numbers with a thousands separator.
+    ...Array.from({ length: 6 }, (_, row) => Array.from({ length: 9 }, (__, col) => ({
+      row: row + 1, col: col + 1, type: 'numeric', numericFormat: { pattern: '0,0' },
+    }))).flat(),
     ...Array.from({ length: 10 }, (_, col) => ({ row: 6, col, style: { fontWeight: 'bold', borderTop: '1px solid #7f7f7f' } })),
     { row: 5, col: 0, comment: { value: 'Online grew every month.', author: 'Ana' } },
   ],

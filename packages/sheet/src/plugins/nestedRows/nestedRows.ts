@@ -772,7 +772,7 @@ class NestedRows extends BasePlugin {
       return;
     }
     const node = this.rowAt(row);
-    const container = (TH.firstElementChild || TH) as HTMLElement;
+    const container = (TH.querySelector(':scope > .relative') || TH) as HTMLElement;
     const inHeader = (this.settings.toggle || 'rowHeader') === 'rowHeader';
 
     TH.querySelectorAll(`.${TOGGLE_CLASS_NAME}`).forEach(toggle => toggle.remove());
