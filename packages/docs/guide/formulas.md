@@ -58,8 +58,8 @@ the engine (default `'en'`, `'UTC'`, `'en'`).
 - **Errors** (`#DIV/0!`, `#NAME?`, `#REF!`, …) are shown as text, and the cell gets the class `fs-formula-error`.
 - **References follow the data rows and columns.** Sorting and moving rows or columns only change how they are
   shown: after sorting, `=A1` still means the first row of your data, not the first row on screen.
-- Column letters in formulas are the data columns (`A` is the first column of the data). One grid is one sheet;
-  references to other grids are not supported yet.
+- Column letters in formulas are the data columns (`A` is the first column of the data). A formula can refer to
+  another [sheet](./sheets#formulas-across-sheets) of the document: `=Costs!B2`.
 
 ## The formula bar
 
