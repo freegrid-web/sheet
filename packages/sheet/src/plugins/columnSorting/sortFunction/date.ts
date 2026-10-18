@@ -1,15 +1,19 @@
 import { parseDate } from '../../../helpers/dateFormat';
 import { isEmpty } from '../../../helpers/mixed';
 import { DO_NOT_SWAP, FIRST_BEFORE_SECOND, FIRST_AFTER_SECOND } from '../sortService';
-import type { CompareFunctionFactory } from '../utils';
+import type { CompareFunctionFactory, SortOrder, SortSettings } from '../utils';
+import type { RowWithValues } from '../rootComparator';
 
 /**
- * Makes the compare function factory for values read with a format from the column meta (`dateFormat` for dates,
- * `timeFormat` for times; `fallbackFormat` when the column has none).
+ * A raw value and its lazily parsed sort key. Undefined means it has not been parsed; null means invalid.
  */
-export const temporalCompareFunctionFactory = (formatKey: 'dateFormat' | 'timeFormat',
-  fallbackFormat?: string): CompareFunctionFactory => (sortOrder, columnMeta, columnPluginSettings) => (
-  (value, nextValue) => {
+type TemporalKey = { value: unknown; date?: Date | null };
+
+const temporalKeyComparator = (sortOrder: SortOrder, columnMeta: Record<string, unknown>,
+  columnPluginSettings: SortSettings, formatKey: 'dateFormat' | 'timeFormat', fallbackFormat?: string) => (
+  (first: TemporalKey, next: TemporalKey): number => {
+    const value = first.value;
+    const nextValue = next.value;
     const { sortEmptyCells } = columnPluginSettings;
 
     if (value === nextValue) {
@@ -39,8 +43,15 @@ export const temporalCompareFunctionFactory = (formatKey: 'dateFormat' | 'timeFo
     }
 
     const format = (columnMeta[formatKey] as string | undefined) || fallbackFormat;
-    const firstDate = parseDate(value as string, format);
-    const nextDate = parseDate(nextValue as string, format);
+
+    if (first.date === undefined) {
+      first.date = parseDate(value as string, format);
+    }
+    if (next.date === undefined) {
+      next.date = parseDate(nextValue as string, format);
+    }
+    const firstDate = first.date;
+    const nextDate = next.date;
 
     if (!firstDate) {
       return FIRST_AFTER_SECOND;
@@ -60,6 +71,41 @@ export const temporalCompareFunctionFactory = (formatKey: 'dateFormat' | 'timeFo
 
     return DO_NOT_SWAP;
   });
+
+/** Makes a standalone value comparator; its keys live for one comparison. */
+export const temporalCompareFunctionFactory = (formatKey: 'dateFormat' | 'timeFormat',
+  fallbackFormat?: string): CompareFunctionFactory => (sortOrder, columnMeta, columnPluginSettings) => {
+  const compare = temporalKeyComparator(sortOrder, columnMeta, columnPluginSettings, formatKey, fallbackFormat);
+
+  return (value, nextValue) => compare({ value }, { value: nextValue });
+};
+
+/** Makes a built-in row comparator with parsed keys scoped to this sort, including invalid keys. */
+export const temporalRowCompareFunctionFactory = (formatKey: 'dateFormat' | 'timeFormat', fallbackFormat?: string) =>
+  (sortOrder: SortOrder, columnMeta: Record<string, unknown>, columnPluginSettings: SortSettings) => {
+    const keys = new WeakMap<RowWithValues, TemporalKey>();
+    const compare = temporalKeyComparator(sortOrder, columnMeta, columnPluginSettings, formatKey, fallbackFormat);
+    const key = (row: RowWithValues): TemporalKey => {
+      const value = row[1];
+
+      // Objects can have stateful coercions (or be mutable Dates); keep reading them per comparison.
+      if ((typeof value === 'object' && value !== null) || typeof value === 'function') {
+        return { value };
+      }
+      let result = keys.get(row);
+
+      if (!result) {
+        result = { value };
+        keys.set(row, result);
+      }
+
+      return result;
+    };
+
+    return (row: RowWithValues, nextRow: RowWithValues): number => compare(key(row), key(nextRow));
+  };
+
+export const rowCompareFunctionFactory = temporalRowCompareFunctionFactory('dateFormat');
 
 /**
  * Date sorting compare function factory. Method get as parameters `sortOrder` and `columnMeta` and return compare function.
