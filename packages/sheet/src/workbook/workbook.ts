@@ -1,5 +1,6 @@
 import './workbook.css';
 import type Core from '../core';
+import { trimEmptyEnd } from './../utils/emptyEnd';
 import type { AnyObject } from '../types';
 
 /** One sheet of the document: its id, its name and its grid. */
@@ -90,6 +91,15 @@ const saveSheet = (sheet: Sheet): SheetDocument => {
       [];
   });
 
+  // fillContainer's empty rows and columns at the end are not saved; cells with settings of their own and merged
+  // cells are.
+  if (instance.getSettings().fillContainer && !plugin('nestedRows')?.enabled) {
+    const ends = [...cell.map(({ row, col }) => [row + 1, col + 1]),
+      ...merged.map(({ row, col, rowspan, colspan }) => [row + rowspan, col + colspan])] as [number, number][];
+
+    saved.data = trimEmptyEnd(saved.data as unknown[], Math.max(0, ...ends.map(([row]) => row)),
+      Math.max(0, ...ends.map(([, col]) => col)));
+  }
   if (colWidths) {
     saved.colWidths = colWidths;
   }

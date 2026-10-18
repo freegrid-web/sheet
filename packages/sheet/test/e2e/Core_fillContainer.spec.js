@@ -56,4 +56,37 @@ describe('Core fillContainer', () => {
     expect(hot.countCols()).toBe(2);
     expect(hot.countRows()).toBeGreaterThan(1);
   });
+
+  it('adds rows and columns when it is scrolled to the end', async() => {
+    const hot = handsontable({ data: [['A1']], colHeaders: true, rowHeaders: true, fillContainer: true });
+    const rows = hot.countRows();
+    const cols = hot.countCols();
+
+    holder().scrollTop = holder().scrollHeight;
+    holder().scrollLeft = holder().scrollWidth;
+    await sleep(200);
+
+    expect(hot.countRows()).toBeGreaterThan(rows);
+    expect(hot.countCols()).toBeGreaterThan(cols);
+  });
+
+  it('does not save the empty rows and columns at the end', async() => {
+    const hot = handsontable({
+      data: [['A1', 'B1'], ['A2', '']],
+      fillContainer: true,
+      cell: [{ row: 4, col: 0, style: { fontWeight: 'bold' } }],
+    });
+
+    expect(hot.countRows()).toBeGreaterThan(5);
+
+    const [sheet] = hot.getDocument().sheets;
+
+    // Up to the last value or cell with settings of its own: the bold empty cell in row 5.
+    expect(sheet.data).toEqual([['A1', 'B1'], ['A2', ''], [null, null], [null, null], [null, null]]);
+
+    hot.setCellMeta(4, 0, 'style', void 0);
+    const csv = await (await hot.exportFile('csv')).text();
+
+    expect(csv.replace(/^\ufeff/, '').trim().split(/\r?\n/)).toEqual(['A1,B1', 'A2,']);
+  });
 });
