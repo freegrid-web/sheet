@@ -167,7 +167,10 @@ hot.updateSettings({ copyPaste: { formats: false } }, false);
 hot.updateSettings({ rowGroups: { groups: [{ from: 1, to: 3, collapsed: true }] } }, false);
 hot.setCellStyle({ fontWeight: 'bold', color: null });
 hot.setCellStyle(null, hot.getSelectedRange());
+hot.setCellStyle({ fontFamily: 'Georgia', fontSize: '14pt', borderTop: '2px solid #c00000', borderLeft: null });
+hot.updateSettings({ cells: () => ({ style: { fontSize: '12pt', borderBottom: '1px solid #000' } }) }, false);
 hot.updateSettings({ formattingBar: { items: ['bold', 'fill_color'] } }, false);
+hot.updateSettings({ fillContainer: true }, false);
 hot.updateSettings({ statusBar: { items: ['sum', 'max'] } }, false);
 hot.updateSettings({ statusBar: { items: [{ item: 'sum', label: 'Total', format: { maximumFractionDigits: 2 } },
   { label: 'Median', value: ({ numbers }) => numbers[0] ?? null }, { align: 'left', value: () => 'Ready' }],

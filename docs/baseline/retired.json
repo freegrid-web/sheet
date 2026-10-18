@@ -24,9 +24,11 @@
     "mergeSort should sort the numbers in descending order when such comparator is provided": "mergeSort removed: column sorting uses the browser's stable Array.prototype.sort (utils TS conversion)"
   },
   "e2e": {
-    "ColumnSorting should clear and generate a new column meta cache after calling `updateSettings` with a new set of data": "the column meta cache was a workaround and is removed (#65); replaced by a spec that sorts a column added by updateSettings"
+    "ColumnSorting should clear and generate a new column meta cache after calling `updateSettings` with a new set of data": "the column meta cache was a workaround and is removed (#65); replaced by a spec that sorts a column added by updateSettings",
+    "ContextMenu keyboard navigation no item selected should scroll down, when user hits ARROW_DOWN for item in menu below the viewport": "a menu taller than the window now fits it and scrolls inside, so the page no longer scrolls; replaced by \"should scroll to the item chosen with ARROW_DOWN in a menu taller than the window\""
   },
   "production": {
-    "ColumnSorting should clear and generate a new column meta cache after calling `updateSettings` with a new set of data": "the column meta cache was a workaround and is removed (#65); replaced by a spec that sorts a column added by updateSettings"
+    "ColumnSorting should clear and generate a new column meta cache after calling `updateSettings` with a new set of data": "the column meta cache was a workaround and is removed (#65); replaced by a spec that sorts a column added by updateSettings",
+    "ContextMenu keyboard navigation no item selected should scroll down, when user hits ARROW_DOWN for item in menu below the viewport": "a menu taller than the window now fits it and scrolls inside, so the page no longer scrolls; replaced by \"should scroll to the item chosen with ARROW_DOWN in a menu taller than the window\""
   }
 }

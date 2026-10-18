@@ -391,3 +391,36 @@ class AutoColumnSize extends BasePlugin {
     ['range', ''],
   ]);
 });
+
+test('a plugin without @plugin is the documented class registered under its name', () => {
+  const source = `
+/** A group as the API gives it. */
+type Group = { from: number };
+
+/**
+ * Row groups, as a spreadsheet's outline.
+ */
+class RowGroups extends Outline {
+  /** Groups rows (visual indexes). */
+  groupRows(from: number, to = from): void {
+  }
+
+  /**
+   * Draws the gutter.
+   *
+   * @private
+   */
+  decorate(): void {
+  }
+}
+
+registerPlugin('rowGroups', RowGroups);`;
+  const plugin = readPlugin(source, 'RowGroups');
+
+  assert.equal(plugin.name, 'RowGroups');
+  assert.equal(plugin.description, 'Row groups, as a spreadsheet\'s outline.');
+  // Without @param, the parameters come from the signature.
+  assert.deepEqual(plugin.methods.map(({ name, params }) => [name, params.map(({ name: param, optional }) => [param, optional])]),
+    [['groupRows', [['from', false], ['to', true]]]]);
+  assert.equal(readPlugin('class Other extends BasePlugin {}'), null);
+});

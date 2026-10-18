@@ -316,6 +316,15 @@ class Core {
 
     this.#recordTranslator = getTranslator(this);
     this.#initVisibility();
+    this.addHook('afterRender', () => {
+      this.#fillContainer();
+    });
+    this.addHook('afterScrollVertically', () => {
+      this.#fillContainer();
+    });
+    this.addHook('afterScrollHorizontally', () => {
+      this.#fillContainer();
+    });
 
     this.#dataSource = new DataSource(this);
 
@@ -2817,9 +2826,10 @@ class Core {
   }
 
   /**
-   * Sets the style of cells (the selected ones by default): `style` (`fontWeight`, `fontStyle`, `textDecoration`,
-   * `color`, `background`, `border`) is merged into each cell's `style` meta, where a `null` property removes that
-   * property; a `null` style removes the whole style. Undo can take it back.
+   * Sets the style of cells (the selected ones by default): `style` (`fontFamily`, `fontSize`, `fontWeight`,
+   * `fontStyle`, `textDecoration`, `color`, `background`, `border`, `borderTop`, `borderRight`, `borderBottom`,
+   * `borderLeft`) is merged into each cell's `style` meta, where a `null` property removes that property; a `null`
+   * style removes the whole style. Undo can take it back.
    *
    * @memberof Core#
    * @function setCellStyle
@@ -3612,6 +3622,55 @@ class Core {
       columns.onRemove(physicalColumns));
   }
 
+
+  /** Whether `#fillContainer` is adding rows and columns (its render must not start it again). */
+  #filling = false;
+
+  /**
+   * `fillContainer`: after a render, adds the empty rows and columns that the grid's view has room for (as `minRows`
+   * and `minCols` do), so the element shows cells to its edges, and a screen more when the view is scrolled to the
+   * end. Columns are added only to array data without `columns`.
+   */
+  #fillContainer(): void {
+    const settings = this.#priv.settings;
+    const wtTable = this.view?.wt?.wtTable;
+
+    if (!settings.fillContainer || this.#filling || !wtTable) {
+      return;
+    }
+    const holder = wtTable.holder as HTMLElement;
+    const hider = wtTable.hider as HTMLElement;
+    const rowHeight = getRowHeight(this.rootElement);
+    const columnWidth = this.view.wt.getSetting('defaultColumnWidth') as number || 50;
+    // What the view has room for, or a screen more when it is scrolled to the end.
+    const atBottom = holder.scrollHeight > holder.clientHeight &&
+      holder.scrollTop + holder.clientHeight >= holder.scrollHeight - 2 * rowHeight;
+    const atRight = holder.scrollWidth > holder.clientWidth &&
+      holder.scrollLeft + holder.clientWidth >= holder.scrollWidth - columnWidth;
+    // While the cells do not overflow the view, one more row and column than it has room for, so it can scroll on.
+    const missing = (room: number, used: number, size: number) => (used <= room ? Math.floor((room - used) / size) + 1 : 0);
+    const rows = Math.min(atBottom ? Math.ceil(holder.clientHeight / rowHeight) :
+      missing(holder.clientHeight, hider.offsetHeight, rowHeight), settings.maxRows - this.countSourceRows());
+    const canAddColumns = !settings.columns && this.dataType === 'array';
+    const columns = canAddColumns ? Math.min(atRight ? Math.ceil(holder.clientWidth / columnWidth) :
+      missing(holder.clientWidth, hider.offsetWidth, columnWidth), settings.maxCols - this.countCols()) : 0;
+
+    if (rows <= 0 && columns <= 0) {
+      return;
+    }
+    this.#filling = true;
+    try {
+      if (rows > 0) {
+        this.#datamap.createRow(this.countSourceRows(), rows, 'auto');
+      }
+      if (columns > 0) {
+        this.#datamap.createCol(this.#countAllCols(), columns, 'auto');
+      }
+      this.render();
+    } finally {
+      this.#filling = false;
+    }
+  }
 
   /**
    * Returns the total number of visible columns in the table.

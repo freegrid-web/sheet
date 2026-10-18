@@ -6,7 +6,7 @@
     "dev": "node api/generate.mjs && vitepress dev",
     "build": "node api/generate.mjs && vitepress build",
     "preview": "vitepress preview",
-    "test:unit": "node --test api/*.test.mjs",
+    "test:unit": "node --test api/*.test.mjs .vitepress/*.test.mjs",
     "test:smoke": "node test/smoke.js"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@ironcalc/wasm": "0.8.4",
+    "livecodes": "0.14.1",
     "playwright": "1.64.0",
     "vitepress": "^1.6.4",
     "vitepress-carbon": "^1.7.0",

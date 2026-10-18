@@ -38,7 +38,7 @@ declare namespace _FreeSheet {
     getOpenPanel(): string | null;
     setLoading(state: boolean | string): void;
     isLoading(): boolean;
-    setCellStyle(style: { [P in 'background' | 'color' | 'fontWeight' | 'fontStyle' | 'textDecoration' | 'border']?: string | null } | null,
+    setCellStyle(style: { [P in keyof FreeSheet.CellStyle]?: string | null } | null,
       ranges?: FreeSheet.wot.CellRange[]): void;
     exportFile(format?: 'xlsx' | 'csv', options?: { headers?: boolean; delimiter?: string }): Promise<Blob>;
     downloadFile(format?: 'xlsx' | 'csv', filename?: string, options?: { headers?: boolean; delimiter?: string }): Promise<void>;
@@ -1442,6 +1442,24 @@ declare namespace FreeSheet {
   interface DefaultSettings extends GridSettings {}
   interface DefaultSettings extends Hooks {}
 
+  /** A cell's own style (the `style` setting). */
+  interface CellStyle {
+    fontFamily?: string;
+    /** In points, as a spreadsheet gives it (`'14pt'`), or any CSS size. */
+    fontSize?: string;
+    fontWeight?: string;
+    fontStyle?: string;
+    textDecoration?: string;
+    color?: string;
+    background?: string;
+    /** A line on every side (`'1px solid #000000'`); a side's own setting wins. */
+    border?: string;
+    borderTop?: string;
+    borderRight?: string;
+    borderBottom?: string;
+    borderLeft?: string;
+  }
+
   interface GridSettings extends Hooks {
     activeHeaderClassName?: string;
     allowEmpty?: boolean;
@@ -1484,6 +1502,8 @@ declare namespace FreeSheet {
     hyperlinks?: boolean;
     /** A cell's link (`https://…`, `mailto:…`). */
     link?: string;
+    /** A cell's own style: fonts, colors and borders. */
+    style?: CellStyle;
     changeHistory?: boolean | { user?: string; limit?: number };
     findAndReplace?: boolean;
     rowGroups?: boolean | { groups?: Array<{ from: number; to: number; collapsed?: boolean }> };
@@ -1525,6 +1545,8 @@ declare namespace FreeSheet {
     editor?: string | (() => void) | boolean;
     enterBeginsEditing?: boolean;
     enterMoves?: object | (() => void);
+    /** Empty rows and columns fill the grid's element. */
+    fillContainer?: boolean;
     fillHandle?: boolean | string | object;
     filter?: boolean;
     filteringCaseSensitive?: boolean;

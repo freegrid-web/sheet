@@ -6,17 +6,35 @@ api: [Data, Hooks API]
 
 ## Reading and writing data
 
-```js
-grid.getData();                 // all values, as an array of arrays
-grid.getSourceData();           // the original objects or arrays
-grid.getDataAtCell(0, 1);       // one value
-grid.setDataAtCell(0, 1, 'new'); // one change (validated, undoable)
-grid.loadData(newData);         // replace all data
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [{ name: 'Ana', city: 'Oslo' }, { name: 'Ben', city: 'Riga' }],
+  colHeaders: ['Name', 'City'],
+  columns: [{ data: 'name' }, { data: 'city' }],
+});
+
+grid.setDataAtCell(0, 1, 'Bergen');       // one change (validated, undoable)
+console.log(grid.getData());              // all values, as an array of arrays
+console.log(grid.getSourceData());        // the original objects or arrays
+console.log(grid.getDataAtCell(1, 0));    // one value: 'Ben'
+// grid.loadData(newData) replaces all data.
 ```
 
 Rows and columns can be added and removed with `alter`:
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(4, 4),
+  colHeaders: true,
+  rowHeaders: true,
+});
+
 grid.alter('insert_row', 2, 1); // insert 1 row at index 2
 grid.alter('remove_col', 0);    // remove the first column
 ```
@@ -27,9 +45,13 @@ grid.alter('remove_col', 0);    // remove the first column
 
 Pass a hook as a setting, or add it later with `addHook`:
 
-```js
-const grid = new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Ana', 31], ['Ben', 27]],
+  colHeaders: ['Name', 'Age'],
   afterChange(changes, source) {
     if (source === 'loadData') return;
     changes.forEach(([row, prop, oldValue, newValue]) => {

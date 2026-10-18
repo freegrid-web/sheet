@@ -117,6 +117,7 @@ class Hyperlinks extends BasePlugin {
     return true;
   }
 
+  /** Removes the link of a cell (visual indexes); its text stays. One undo step. */
   removeLink(row: number, col: number): void {
     this.setLink(row, col, null);
   }
@@ -149,7 +150,11 @@ class Hyperlinks extends BasePlugin {
     }
   }
 
-  /** The selected cell (the active one): `[row, col]`. */
+  /**
+   * The selected cell (the active one): `[row, col]`.
+   *
+   * @private
+   */
   selectedCell(): [number, number] | null {
     const selected = this.hot.getSelectedLast();
 
@@ -162,7 +167,11 @@ class Hyperlinks extends BasePlugin {
     return cell ? this.getLink(...cell) : null;
   }
 
-  /** The card under a selected link: its address, Edit and Remove. */
+  /**
+   * The card under a selected link: its address, Edit and Remove.
+   *
+   * @private
+   */
   showCard(): void {
     this.close();
     const selected = this.hot.getSelectedLast();
@@ -280,7 +289,11 @@ class Hyperlinks extends BasePlugin {
     return button;
   }
 
-  /** Under the selected cell (above it at the bottom of the window). */
+  /**
+   * Under the selected cell (above it at the bottom of the window).
+   *
+   * @private
+   */
   place(element: HTMLElement): void {
     const cell = this.selectedCell();
     const td = cell && this.grid.getCell(cell[0], cell[1], true);

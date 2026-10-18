@@ -6,9 +6,18 @@ api: [Hyperlinks]
 
 A cell's `link` setting makes its text a link: underlined, in the link color.
 
-```js
-new FreeSheet(container, {
-  data: [['FreeGrid', 'Write to us']],
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['FreeSheet on GitHub', 'Write to us'],
+    ['Select a cell with a link', 'Ctrl+K edits it'],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: ['link', '---------', 'copy', 'cut'],
   cell: [
     { row: 0, col: 0, link: 'https://github.com/freegrid-web/sheet' },
     { row: 0, col: 1, link: 'mailto:team@example.com' },
@@ -26,12 +35,20 @@ new FreeSheet(container, {
 
 From code:
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['', ''], ['', '']],
+  colHeaders: true,
+});
 const links = grid.getPlugin('hyperlinks');
 
 links.setLink(0, 0, 'https://example.com', 'Example'); // the text is optional
-links.getLink(0, 0);                                   // 'https://example.com'
-links.removeLink(0, 0);
+links.setLink(0, 1, 'example.org/docs');               // becomes https://example.org/docs
+console.log(links.getLink(0, 1));                      // 'https://example.org/docs'
+// links.removeLink(0, 0) keeps the text and removes the link.
 ```
 
 Turn the feature off with `hyperlinks: false`. The CSS variable `--fs-link-color` colors the links.

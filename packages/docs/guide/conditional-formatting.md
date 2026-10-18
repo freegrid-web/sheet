@@ -8,14 +8,24 @@ Cells can format themselves from their values, as in Excel: a total over 1000 tu
 data bars or icons. A rule applies to a range of cells and uses the value a cell shows, so formulas are formatted by
 their result.
 
-```js
-new FreeSheet(container, {
-  data,
-  formulas: { engine: Model },
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Store', 'Jan', 'Feb', 'Mar', 'Apr', 'Total'],
+    ['Vilnius', 310, 290, 340, 360, 1300],
+    ['Kaunas', 180, 210, 190, 205, 785],
+    ['Klaipėda', 240, 220, 260, 300, 1020],
+    ['Šiauliai', 90, 120, 110, 95, 415],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: true,
   conditionalFormatting: [
-    { range: 'F2:F20', when: 'gt', value: 1000, style: { background: '#f8d7da', color: '#842029' } },
-    { range: 'B2:E20', colorScale: ['#f8696b', '#ffeb84', '#63be7b'] },
-    { range: 'A2:F20', when: '=$F2<0', style: { color: '#c00000' } },
+    { range: 'F2:F5', when: 'gt', value: 1000, style: { background: '#f8d7da', color: '#842029' } },
+    { range: 'B2:E5', colorScale: ['#f8696b', '#ffeb84', '#63be7b'] },
   ],
 });
 ```
@@ -28,11 +38,37 @@ removing rows and columns moves and resizes the ranges.
 
 For one column there is a shorter form, on the column itself:
 
-```js
-columns: [
-  { data: 'region', title: 'Region' },
-  { data: 'total', title: 'Total', format: [{ when: 'gt', value: 1000, style: { fontWeight: 'bold' } }] },
-],
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    { region: 'North', total: 1240 },
+    { region: 'South', total: 860 },
+    { region: 'West', total: 1530 },
+  ],
+  columns: [
+    { data: 'region', title: 'Region' },
+    { data: 'total', title: 'Total', format: [{ when: 'gt', value: 1000, style: { fontWeight: 'bold' } }] },
+  ],
+});
+```
+
+Data bars and icons:
+
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Ana', 82, 0.12], ['Ben', 45, -0.04], ['Cleo', 97, 0.31], ['Dan', 63, 0.02]],
+  colHeaders: ['Name', 'Score', 'Change'],
+  conditionalFormatting: [
+    { range: 'B1:B4', dataBar: '#638ec6' },
+    { range: 'C1:C4', iconSet: 'arrows' },
+  ],
+});
 ```
 
 ## Kinds of rules
@@ -63,6 +99,28 @@ Highlight and formula rules draw with `style` (`background`, `color`, `fontWeigh
 when a formula is copied (`$` fixes a column or a row). `{ range: 'A2:F20', when: '=$F2<0' }` formats a whole row
 when its F is negative. A formula rule needs `formulas`; without an engine it does nothing.
 
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+import init, { Model } from '@ironcalc/wasm';
+
+await init(); // loads the formula engine's WebAssembly
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Account', 'In', 'Out', 'Balance'],
+    ['Rent', 0, 1200, '=B2-C2'],
+    ['Sales', 4200, 300, '=B3-C3'],
+    ['Travel', 0, 450, '=B4-C4'],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
+  formulas: { engine: Model },
+  // A whole row turns red when its balance (column D) is negative.
+  conditionalFormatting: [{ range: 'A2:D4', when: '=$D2<0', style: { color: '#c00000' } }],
+});
+```
+
 ## Priority
 
 Rules are in priority order: where two rules set the same style, the first wins; others still add their styles.
@@ -76,14 +134,28 @@ in the [side panel](./side-panel). `conditionalFormatting: true` turns the plugi
 
 ## The API
 
-```js
-const rules = hot.getPlugin('conditionalFormatting');
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-const id = rules.addRule({ range: 'B2:B20', when: 'lt', value: 0, style: { color: '#c00000' } });
-rules.updateRule(id, { range: 'B2:B30', when: 'lt', value: 0, style: { color: '#c00000' } });
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Rent', -1200], ['Sales', 4200], ['Travel', -450], ['Fees', 80]],
+  colHeaders: ['Account', 'Amount'],
+  conditionalFormatting: true,
+});
+const rules = grid.getPlugin('conditionalFormatting');
+
+const id = rules.addRule({ range: 'B1:B4', when: 'lt', value: 0, style: { color: '#c00000' } });
+
+rules.updateRule(id, { range: 'B1:B4', when: 'lt', value: 0, style: { color: '#c00000', fontWeight: 'bold' } });
+console.log(rules.getRulesAt(0, 1).length); // 1: the rules of a cell (visual row and column)
+```
+
+The other methods:
+
+```js
 rules.moveRule(id, 0);          // highest priority
 rules.getRules();               // the sheet's rules, JSON-safe, with ids
-rules.getRulesAt(3, 1);         // the rules of a cell (visual row and column)
 rules.clearRules('B5:B10');     // removes the rules from these cells (a larger rule keeps the rest)
 rules.clearRules();             // removes every rule
 rules.removeRule(id);

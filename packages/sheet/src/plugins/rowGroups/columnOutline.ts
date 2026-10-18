@@ -58,13 +58,18 @@ class ColumnOutline extends Outline {
     this.ungroup(from, to);
   }
 
-  /** The gutter above a column header (the first header row), or the corner's level buttons. */
+  /**
+   * The gutter above a column header (the first header row), or the corner's level buttons.
+   *
+   * @private
+   */
   decorateHeader(column: number, TH: HTMLTableCellElement): void {
-    const container = (TH.firstElementChild || TH) as HTMLElement;
+    const container = (TH.querySelector(':scope > .relative') || TH) as HTMLElement;
     const firstRow = TH.parentElement === TH.parentElement?.parentElement?.firstElementChild;
 
     TH.querySelector('.fs-column-outline__gutter, .fs-column-outline__levels')?.remove();
     TH.classList.remove('fs-column-outline__header');
+    TH.style.removeProperty('--fs-column-outline-gutter');
     if (!firstRow) {
       return;
     }

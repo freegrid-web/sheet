@@ -7,16 +7,32 @@ api: [Context menu]
 A right click on a cell opens the context menu. Its entries show an icon at the left and their keyboard shortcut at
 the right, as in a spreadsheet. In the Modern style, the menu has round corners and a shadow.
 
-```js
-new FreeSheet(container, { data, contextMenu: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(4, 4),
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: true, // right-click a cell
+});
 ```
 
 ## Choosing the entries
 
 `true` shows the default entries. A list chooses them and their order (`'---------'` is a separator):
 
-```js
-contextMenu: ['undo', 'redo', '---------', 'row_above', 'row_below', '---------', 'formatting', 'freeze']
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(4, 4),
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: ['undo', 'redo', '---------', 'row_above', 'row_below', '---------', 'formatting', 'freeze'],
+});
 ```
 
 | Key | Entry |
@@ -43,24 +59,41 @@ Plugins add their own entries to the default menu, for example copy and cut, con
 
 An object of entries by key adds entries of your own next to the built-in ones:
 
-```js
-contextMenu: {
-  items: {
-    undo: {},                 // a built-in entry, by its key
-    sep1: '---------',
-    highlight: {
-      name: 'Highlight',
-      icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="5" fill="gold"/></svg>',
-      shortcut: 'Ctrl+Shift+H',
-      callback(key, selection) {
-        this.setCellStyle({ background: '#fff3b0' });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(4, 4),
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: {
+    items: {
+      undo: {},                 // a built-in entry, by its key
+      sep1: '---------',
+      highlight: {
+        name: 'Highlight',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="5" fill="gold"/></svg>',
+        shortcut: 'Ctrl+Shift+H',
+        callback(key, selection) {
+          this.setCellStyle({ background: '#fff3b0', color: '#1f2937' });
+        },
+        disabled() {
+          return !this.getSelectedLast();
+        },
       },
-      disabled() {
-        return !this.getSelectedLast();
+      size: {
+        name: 'Size',
+        submenu: {
+          items: [
+            { key: 'size:small', name: 'Small', callback() { this.setCellStyle({ fontSize: '9pt' }); } },
+            { key: 'size:large', name: 'Large', callback() { this.setCellStyle({ fontSize: '14pt' }); } },
+          ],
+        },
       },
     },
   },
-},
+});
 ```
 
 - **`name`** is a text, or a function that returns one.

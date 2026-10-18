@@ -1,5 +1,6 @@
 import { readXlsx, writeXlsx } from './xlsx';
 import { parseCsv, toCsv } from './csv';
+import { trimEmptyEnd } from './../utils/emptyEnd';
 import {
   dateFormatToExcel, dateToSerial, excelToDateFormat, excelToNumberPattern, isDateCode, numberPatternToExcel,
   serialToDate,
@@ -345,7 +346,9 @@ export const bookToDocument = (book: Book, options: FileOptions = {}): Record<st
 
 /** The active sheet's values (formula results) as rows, for CSV. */
 const csvRows = (grid: Core, headers: boolean): unknown[][] => {
-  const rows = grid.getData() as unknown[][];
+  // fillContainer's empty rows and columns at the end are not written.
+  const rows = grid.getSettings().fillContainer ? trimEmptyEnd(grid.getData() as unknown[][]) :
+    grid.getData() as unknown[][];
 
   return headers ? [Array.from({ length: grid.countCols() }, (_, column) => grid.getColHeader(column)), ...rows] : rows;
 };

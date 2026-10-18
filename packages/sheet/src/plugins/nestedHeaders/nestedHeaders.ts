@@ -67,7 +67,11 @@ class NestedHeaders extends BasePlugin {
     super.updatePlugin();
   }
 
-  /** Reads the header rows into groups. */
+  /**
+   * Reads the header rows into groups.
+   *
+   * @private
+   */
   readSettings(): void {
     const tree = getColumnTree(this.hot);
     const rows = this.hot.getSettings().nestedHeaders as NestedHeader[][] || [];
@@ -110,12 +114,18 @@ class NestedHeaders extends BasePlugin {
    *
    * @param level The header row (0 = the top).
    * @param physicalColumn Physical column index.
+   *
+   * @private
    */
   groupAt(level: number, physicalColumn: number): HeaderGroup | undefined {
     return this.#levels[level]?.[physicalColumn];
   }
 
-  /** Every group of every header row (each once). */
+  /**
+   * Every group of every header row (each once).
+   *
+   * @private
+   */
   groups(): HeaderGroup[] {
     return this.#levels.flatMap(groups => Array.from(new Set(groups.filter(Boolean)))) as HeaderGroup[];
   }
@@ -132,7 +142,11 @@ class NestedHeaders extends BasePlugin {
     return group ? { label: group.label, columns: this.visibleColumns(group) } : null;
   }
 
-  /** The visual columns of a group that are not hidden, in order. */
+  /**
+   * The visual columns of a group that are not hidden, in order.
+   *
+   * @private
+   */
   visibleColumns(group: HeaderGroup): number[] {
     const columns: number[] = [];
 

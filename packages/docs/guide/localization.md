@@ -10,11 +10,18 @@ languages: `de-CH`, `de-DE`, `es-MX`, `fr-FR`, `it-IT`, `ja-JP`, `ko-KR`, `lv-LV
 
 Load a language, then select it with the `language` setting:
 
-```js
+```js live
 import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 import '@freegrid/sheet/languages/de-DE'; // or '@freegrid/sheet/languages/all'
 
-new FreeSheet(container, { data, contextMenu: true, language: 'de-DE' });
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(3, 3),
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: true, // right-click: the menu is in German
+  language: 'de-DE',
+});
 ```
 
 With `<script>` tags, load `dist/languages/de-DE.js` (or `all.js`) after the grid script.
@@ -23,13 +30,24 @@ With `<script>` tags, load `dist/languages/de-DE.js` (or `all.js`) after the gri
 
 Register a dictionary that maps phrase keys to text. Keys you leave out fall back to English:
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
 const C = FreeSheet.languages.dictionaryKeys;
 
 FreeSheet.languages.registerLanguageDictionary({
-  languageCode: 'lt-LT',
-  [C.CONTEXTMENU_ITEMS_ROW_ABOVE]: 'Įterpti eilutę aukščiau',
-  [C.CONTEXTMENU_ITEMS_ROW_BELOW]: 'Įterpti eilutę žemiau',
+  languageCode: 'xx-XX',
+  [C.CONTEXTMENU_ITEMS_ROW_ABOVE]: 'New row up here',
+  [C.CONTEXTMENU_ITEMS_ROW_BELOW]: 'New row down there',
+});
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(3, 3),
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: ['row_above', 'row_below', '---------', 'remove_row'], // the last one falls back to English
+  language: 'xx-XX',
 });
 ```
 

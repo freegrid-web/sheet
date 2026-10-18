@@ -4,6 +4,11 @@
 
 ### Added
 
+- `fillContainer: true`: empty rows and columns fill the grid's element to its edges, as in a spreadsheet; more are
+  added when the element grows or is scrolled to the end. `getDocument()` and CSV files leave out the empty rows and
+  columns at the end.
+- Formatting bar: strikethrough is one of the default buttons; the borders list shows an icon for each kind, and the
+  borders button shows the kind it draws (the last one chosen).
 - Excel (.xlsx) and CSV files, read and written by FreeSheet itself (no dependency): `exportFile(format, options)`
   (a Blob), `downloadFile(format, filename, options)`, `importFile(source, options)` (an .xlsx file replaces the
   document; CSV replaces the active sheet's data). An Excel file keeps the sheets, values and formulas (with their
@@ -78,8 +83,37 @@
   column groups share one outline model.
 - `getDocument()` and `loadDocument()` keep frozen rows and columns (`fixedRowsTop`, `fixedColumnsLeft`).
 
+- Docs:
+  - the guide is grouped by topic (Data, Rows and columns, Editing, Look, Menus and panels, Extending), with new
+    pages Formatting, Sorting, Comments and merged cells, and Selection and keyboard;
+  - live examples in the guide pages: each code block that makes a grid shows it working;
+  - every example has **Copy code** and **Open in playground** (LiveCodes, with the package from npm);
+  - each guide page ends with the API of its topic: settings, methods, events and plugin methods with their signature
+    and a one-line description;
+  - the API reference lists every plugin (row groups, column outline, data validation, hyperlinks, change history,
+    find and replace, status bar, formatting bar and others were missing) and the settings and events of filters, the
+    column menu, hidden rows and columns, nested rows and nested headers.
+
 ### Fixed
 
+- The column menu's ▾ button stays next to the header's name when a column outline draws its gutter in the header
+  (it was drawn in the gutter), and headers with a gutter are no longer made again at every render.
+- A context menu that fits neither below nor above the cell stays in the window: as low as the window allows, and a
+  menu taller than the window scrolls inside. In the Modern style, the menu's frame holds all its items (the last ones
+  were drawn outside it).
+- The formatting bar's font size field is as wide as its value (`10.5`, `100`).
+- Text on a fill is readable in every theme: a cell style or a conditional formatting rule with a background and no
+  text color gets dark text on a light fill and white text on a dark one (`--fs-text-on-light-fill`,
+  `--fs-text-on-dark-fill`). Before, a light fill in the dark theme had light text.
+- In a document of several sheets, new settings for a sheet that is not shown no longer show its formula bar.
+- A sheet with `minSpareRows` (or `minSpareCols`) in a document with formulas no longer fails while it is created.
+- Conditional formatting: in a narrow column, an icon set's icon and its number stay on one line instead of the
+  number moving under the icon and making the row twice as tall.
+- Links in cells and the text of read-only cells are readable on the cell background (WCAG AA contrast): links have
+  their own color, `--fs-color-link` (`#0563c1`, and `#6cb6ff` in the dark theme), instead of the accent color, and
+  read-only text is `#6e6e6e` instead of `#777`.
+- Types: `setCellStyle` and the `style` setting take every style property (`fontFamily`, `fontSize` and the borders
+  of each side); `CellStyle` is a type of its own.
 - The cell editor no longer takes the focus back a moment after a cell is selected while the grid does not have the
   keyboard (a box outside the grid, such as find and replace, keeps it).
 - A command in a submenu inside a submenu (Conditional formatting ▸ Data Bars ▸ a color) did nothing when clicked, and

@@ -12,14 +12,27 @@ api: [Change history]
 
 The **Changes** side panel lists the changes, newest first and grouped by day.
 
-```js
-const grid = new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Item', 'Price', 'Stock'],
+    ['Laptop', 1299, 12],
+    ['Monitor', 249, 4],
+    ['Keyboard', 79, 48],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
   changeHistory: { user: 'Ada' }, // the name shown with each change
   sidePanel: true,
   contextMenu: ['undo', 'redo', '---------', 'show_changes'],
 });
 
+// Two changes, so the panel has something to show. Edit a cell to add one.
+grid.setDataAtCell(1, 1, 1199);
+grid.setDataAtCell([[2, 2, 0], [3, 2, 40]]);
 grid.openPanel('changes');
 ```
 
@@ -31,16 +44,30 @@ grid.openPanel('changes');
 
 From code:
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Ana', 31], ['Ben', 27], ['Cleo', 45]],
+  colHeaders: ['Name', 'Age'],
+  changeHistory: true,
+});
 const history = grid.getPlugin('changeHistory');
 
-history.getChanges();   // [{ id, time, user, kind, cells: [{ row, col, before, after }], index, amount, source }]
-history.clearChanges();
-
 grid.addHook('afterChangeRecorded', (change) => {
-  // for example, send it to your server
+  // For example, send it to your server.
+  console.log(change.kind, change.cells);
 });
+
+grid.setDataAtCell(0, 1, 32);
+grid.alter('insert_row', 3);
+console.log(history.getChanges().length); // 2
+// history.clearChanges() forgets them.
 ```
+
+`getChanges()` gives `[{ id, time, user, kind, cells: [{ row, col, before, after }], index, amount, source }]`,
+oldest first.
 
 `kind` is `'edit'`, `'insert_row'`, `'remove_row'`, `'insert_col'` or `'remove_col'`. `row` and `col` are rows and
 columns of the data (`getSourceData`).

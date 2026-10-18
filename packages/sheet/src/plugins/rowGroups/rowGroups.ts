@@ -84,9 +84,13 @@ class RowGroups extends Outline {
     return this.maxLevel() ? Math.max(width || 50, 50) + this.gutterSize() : width;
   }
 
-  /** The gutter of a row header: the groups' brackets and −/+ buttons, one column per level. */
+  /**
+   * The gutter of a row header: the groups' brackets and −/+ buttons, one column per level.
+   *
+   * @private
+   */
   decorateRowHeader(row: number, TH: HTMLTableCellElement): void {
-    const container = (TH.firstElementChild || TH) as HTMLElement;
+    const container = (TH.querySelector(':scope > .relative') || TH) as HTMLElement;
 
     TH.querySelector('.fs-row-groups__gutter')?.remove();
     TH.classList.remove('fs-row-groups__header');
@@ -138,7 +142,11 @@ class RowGroups extends Outline {
     TH.insertBefore(gutter, TH.firstChild);
   }
 
-  /** The corner's level buttons (1, 2, …: show the outline down to that level), over the gutter's columns. */
+  /**
+   * The corner's level buttons (1, 2, …: show the outline down to that level), over the gutter's columns.
+   *
+   * @private
+   */
   decorateCorner(column: number, TH: HTMLTableCellElement): void {
     TH.querySelector('.fs-row-groups__levels')?.remove();
     TH.classList.remove('fs-row-groups__corner');

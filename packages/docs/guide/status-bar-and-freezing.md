@@ -13,8 +13,23 @@ is selected, it shows their average, count and sum:
 - **Average** and **Sum** use the numbers among them (formula results count).
 - Without numbers, only the count shows.
 
-```js
-new FreeSheet(container, { data, statusBar: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Rent', 1200, 1200],
+    ['Power', 300, 260],
+    ['Internet', 50, 50],
+    ['Travel', 800, 450],
+  ],
+  colHeaders: ['Cost', 'Q1', 'Q2'],
+  rowHeaders: true,
+  statusBar: true,
+});
+
+grid.selectCell(0, 1, 3, 2); // the bar shows their average, count and sum
 ```
 
 Choose the figures with `items`: `'average'`, `'count'`, `'numericalCount'` (cells with a number), `'min'`, `'max'`
@@ -47,17 +62,42 @@ An item can also be an object:
 - **A function** `(value, context) => text`, which can write the value its own way, compute something else or add
   text. `context` has the fields above, and `item`: the built-in item's name or the item's label.
 
-```js
-statusBar: {
-  items: [
-    { align: 'left', value: () => (saved ? 'Saved' : 'Unsaved changes') },
-    { item: 'sum', label: 'Total' },
-    'average',
-    { label: 'Median', value: ({ numbers }) => median(numbers) },
-    { label: 'Cells', value: ({ cells }) => cells.length, format: count => `${count} selected` },
-  ],
-  format: { maximumFractionDigits: 2 },
-}
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+let saved = true;
+
+const median = (numbers) => {
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+};
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [[12.5, 7], [3.25, 18], [9, 4.75]],
+  colHeaders: true,
+  rowHeaders: true,
+  statusBar: {
+    items: [
+      { align: 'left', value: () => (saved ? 'Saved' : 'Unsaved changes') },
+      { item: 'sum', label: 'Total' },
+      'average',
+      { label: 'Median', value: ({ numbers }) => (numbers.length ? median(numbers) : null) },
+      { label: 'Cells', value: ({ cells }) => cells.length, format: count => `${count} selected` },
+    ],
+    format: { maximumFractionDigits: 2 },
+  },
+  afterChange: (changes, source) => {
+    if (source !== 'loadData') {
+      saved = false;
+      grid.getPlugin('statusBar').refresh();
+    }
+  },
+});
+
+grid.selectCell(0, 0, 2, 1);
 ```
 
 The bar updates when the selection or the data changes. When an item depends on something else, call
@@ -72,8 +112,19 @@ Frozen rows stay at the top while the grid scrolls, frozen columns at the left. 
 `fixedColumnsLeft`, or let users choose with the context menu's **Freeze** entry. Add its key `'freeze'` to your
 menu:
 
-```js
-contextMenu: ['undo', 'redo', '---------', 'freeze']
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(40, 20),
+  colHeaders: true,
+  rowHeaders: true,
+  height: 260,
+  fixedRowsTop: 1,
+  fixedColumnsLeft: 1,
+  contextMenu: ['undo', 'redo', '---------', 'freeze'],
+});
 ```
 
 **Freeze** has these commands:

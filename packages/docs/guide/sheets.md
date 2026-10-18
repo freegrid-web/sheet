@@ -8,11 +8,21 @@ A FreeSheet grid can hold several sheets, as an Excel file does. The grid you cr
 first sheet, `Sheet1`; every sheet you add belongs to the same document. Until you add one, a grid has no tabs and
 costs nothing extra.
 
-```js
-const hot = new FreeSheet(container, { data: sales, sheetName: 'Sales', colHeaders: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-const costs = hot.addSheet('costs', { name: 'Costs', data: costsData }); // the new sheet's grid
-hot.activateSheet('costs');
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['January', 1200], ['February', 1350]],
+  sheetName: 'Sales',
+  colHeaders: true,
+});
+
+const costs = grid.addSheet('costs', { name: 'Costs', data: [['Rent', 800], ['Power', 120]] }); // its grid
+
+grid.activateSheet('costs');
+console.log(costs.getDataAtCell(0, 0)); // 'Rent'
+console.log(grid.getSheets());          // [{ id, name }, …] in the order of the tabs
 ```
 
 The tab bar appears below the sheets as soon as there is more than one. Users switch sheets by clicking a tab, add
@@ -22,13 +32,18 @@ sheets); `false` hides them. `sheetTabsPosition: 'top'` puts them above the shee
 
 To create several sheets at once, list them in the `sheets` setting:
 
-```js
-new FreeSheet(container, {
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
   sheetName: 'Sales',
-  data: sales,
+  data: [['January', 1200], ['February', 1350]],
+  colHeaders: true,
+  rowHeaders: true,
   sheets: [
-    { id: 'costs', name: 'Costs', data: costsData },
-    { id: 'summary', name: 'Summary', data: summaryData },
+    { id: 'costs', name: 'Costs', data: [['Rent', 800], ['Power', 120]] },
+    { id: 'summary', name: 'Summary', data: [['Profit', 1630]] },
   ],
 });
 ```
@@ -69,10 +84,22 @@ A sheet name has 1 to 31 characters, without `[ ] : * ? / \`, and is unique in t
 `className`, `readOnly`, `type`, number and date formats) and the active sheet. `loadDocument(document)` puts it
 back: the sheets, their order and content, and the active sheet.
 
-```js
-localStorage.setItem('book', JSON.stringify(hot.getDocument())); // or send it to your server
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-hot.loadDocument(JSON.parse(localStorage.getItem('book')));
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Saved', 'with'], ['its', 'style']],
+  colHeaders: true,
+  sheets: [{ id: 'notes', name: 'Notes', data: [['A second sheet']] }],
+  cell: [{ row: 0, col: 0, style: { fontWeight: 'bold' } }],
+});
+
+const saved = JSON.stringify(grid.getDocument()); // or send it to your server
+console.log(`${saved.length} characters`);
+
+grid.setDataAtCell(0, 0, 'Changed');
+grid.loadDocument(JSON.parse(saved)); // back as it was
 ```
 
 ## Fitting in your element

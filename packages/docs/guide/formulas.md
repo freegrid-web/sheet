@@ -13,16 +13,27 @@ several hundred Excel functions.
 npm install @ironcalc/wasm
 ```
 
-```js
+```js live
 import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 import init, { Model } from '@ironcalc/wasm';
 
 await init(); // loads the WebAssembly (about 2 MB, 0.6 MB compressed) once
 
-new FreeSheet(container, {
-  data: [[1, 2, '=A1+B1']],
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    [1, 2, '=A1+B1'],
+    [10, 20, '=SUM(A2:B2)'],
+    ['', '', '=C1*C2'],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
   formulas: { engine: Model },
+  formulaBar: true, // select a cell to see its formula
 });
+
+console.log(grid.getDataAtCell(2, 2));                        // 90: the result
+console.log(grid.getPlugin('formulas').getFormula(2, 2));     // '=C1*C2'
 ```
 
 With Vite's dev server, exclude the package from dependency pre-bundling; otherwise `init()` cannot find the

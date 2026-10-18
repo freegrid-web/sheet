@@ -5,11 +5,8 @@
 // Settings and events of features FreeSheet does not have (yet): the code still knows their names, the reference does
 // not list them. See the roadmap.
 export const UNAVAILABLE = new Set([
-  'licenseKey', 'collapsibleColumns', 'columnSummary', 'dropdownMenu', 'filters', 'ganttChart',
-  'headerTooltips', 'hiddenColumns', 'hiddenRows', 'nestedHeaders', 'trimRows', 'nestedRows', 'multiColumnSorting',
-  'afterDropdownMenuDefaultOptions', 'beforeDropdownMenuSetItems', 'beforeDropdownMenuShow', 'afterDropdownMenuShow',
-  'afterDropdownMenuHide', 'beforeFilter', 'afterFilter', 'hiddenRow', 'hiddenColumn', 'afterTrimRow',
-  'afterUntrimRow', 'beforeAddChild', 'afterAddChild', 'beforeDetachChild', 'afterDetachChild', 'skipLengthCache',
+  'licenseKey', 'columnSummary', 'ganttChart', 'headerTooltips', 'trimRows', 'multiColumnSorting',
+  'afterDropdownMenuDefaultOptions', 'hiddenRow', 'hiddenColumn', 'afterTrimRow', 'afterUntrimRow', 'skipLengthCache',
 ]);
 
 export const TOPICS = [
@@ -81,7 +78,7 @@ export const TOPICS = [
     events: ['beforeStretchingColumnWidth', 'afterGetColumnHeaderRenderers', 'afterGetRowHeaderRenderers',
       'beforeHideRows', 'afterHideRows', 'beforeUnhideRows', 'afterUnhideRows', 'beforeHideColumns',
       'afterHideColumns', 'beforeUnhideColumns', 'afterUnhideColumns', 'hiddenRow', 'hiddenColumn'],
-    settings: ['rowHeaders', 'colHeaders', 'colWidths', 'rowHeights', 'stretchH', 'allowInsertRow',
+    settings: ['rowHeaders', 'colHeaders', 'colWidths', 'rowHeights', 'stretchH', 'fillContainer', 'allowInsertRow',
       'allowInsertColumn', 'allowRemoveRow', 'allowRemoveColumn', 'fixedRowsTop', 'fixedRowsBottom',
       'fixedColumnsLeft', 'rowHeaderWidth', 'columnHeaderHeight', 'bindRowsWithHeaders', 'title', 'hiddenRows',
       'hiddenColumns'],
@@ -133,10 +130,35 @@ export const TOPICS = [
   },
   {
     name: 'Formatting',
-    description: 'Cell styles: bold, italic, underline, colors; the Format menu and Ctrl+B, Ctrl+I, Ctrl+U.',
+    description: 'Cell styles: fonts, bold, italic, underline, colors, borders and number formats; the formatting bar '
+      + 'and Ctrl+B, Ctrl+I, Ctrl+U.',
     methods: ['setCellStyle'],
     events: ['afterSetCellStyle', 'afterSetCellFormat'],
-    settings: ['formattingBar'],
+    settings: ['formattingBar', 'customBorders'],
+  },
+  {
+    name: 'Sorting',
+    description: 'Sorting by a column: a click on its header, the column menu or the API.',
+    methods: [],
+    events: [],
+    settings: ['columnSorting'],
+    match: /Sort/,
+  },
+  {
+    name: 'Comments and merged cells',
+    description: 'Notes on cells and cells merged into one.',
+    methods: [],
+    events: [],
+    settings: ['comments', 'commentedCellClassName', 'mergeCells'],
+    match: /[Mm]erge|Comment/,
+  },
+  {
+    name: 'Copy, paste and fill',
+    description: 'The clipboard (Ctrl+C, Ctrl+X, Ctrl+V and Paste Special) and the fill handle.',
+    methods: [],
+    events: [],
+    settings: ['copyPaste', 'copyable', 'skipColumnOnPaste', 'fillHandle'],
+    match: /Cop(y|ied)|Cut|Paste|Autofill/,
   },
   {
     name: 'Status bar',

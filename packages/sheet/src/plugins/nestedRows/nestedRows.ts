@@ -186,7 +186,11 @@ class NestedRows extends BasePlugin {
     return this.#rows;
   }
 
-  /** Reads the tree again: the rows in order, each row's parent, level and index. */
+  /**
+   * Reads the tree again: the rows in order, each row's parent, level and index.
+   *
+   * @private
+   */
   rebuild(): void {
     const key = this.childrenKey;
     const rows: Row[] = [];
@@ -232,7 +236,11 @@ class NestedRows extends BasePlugin {
     return this.children(row).length > 0;
   }
 
-  /** Every descendant of a row, in order. */
+  /**
+   * Every descendant of a row, in order.
+   *
+   * @private
+   */
   descendants(row: Row): Row[] {
     const result: Row[] = [];
     const walk = (parent: Row) => this.children(parent).forEach((child) => {
@@ -245,7 +253,11 @@ class NestedRows extends BasePlugin {
     return result;
   }
 
-  /** The rows collapsed parents hide (none while a filter is on: it shows the matching rows and their parents). */
+  /**
+   * The rows collapsed parents hide (none while a filter is on: it shows the matching rows and their parents).
+   *
+   * @private
+   */
   updateVisibility(): void {
     const hidden: number[] = [];
 
@@ -259,7 +271,11 @@ class NestedRows extends BasePlugin {
     this.visibility.setHidden(SOURCE, hidden);
   }
 
-  /** Whether no collapsed ancestor already hides the row. */
+  /**
+   * Whether no collapsed ancestor already hides the row.
+   *
+   * @private
+   */
   isVisibleParent(row: Row): boolean {
     let parent = this.#parent.get(row) || null;
 
@@ -273,7 +289,11 @@ class NestedRows extends BasePlugin {
     return true;
   }
 
-  /** The `collapsed` setting, after new data is loaded. */
+  /**
+   * The `collapsed` setting, after new data is loaded.
+   *
+   * @private
+   */
   applyCollapsedSetting(): void {
     const { collapsed } = this.settings;
 
@@ -377,7 +397,11 @@ class NestedRows extends BasePlugin {
     return this.numbers().get(node) || '';
   }
 
-  /** The outline numbers, in the order the rows are shown (sorted siblings count in their new order). */
+  /**
+   * The outline numbers, in the order the rows are shown (sorted siblings count in their new order).
+   *
+   * @private
+   */
   numbers(): Map<Row, string> {
     if (this.#numbers) {
       return this.#numbers;
@@ -539,7 +563,11 @@ class NestedRows extends BasePlugin {
     this.rebuild();
   }
 
-  /** A row's children array (created when it has none). */
+  /**
+   * A row's children array (created when it has none).
+   *
+   * @private
+   */
   childList(row: Row): Row[] {
     if (!Array.isArray(row[this.childrenKey])) {
       row[this.childrenKey] = [];
@@ -699,6 +727,8 @@ class NestedRows extends BasePlugin {
    *
    * @param matching Whether each physical row matches.
    * @param active Whether any condition is set.
+   *
+   * @private
    */
   filterTree(matching: boolean[], active: boolean): boolean[] {
     const shown = [...matching];
@@ -742,7 +772,7 @@ class NestedRows extends BasePlugin {
       return;
     }
     const node = this.rowAt(row);
-    const container = (TH.firstElementChild || TH) as HTMLElement;
+    const container = (TH.querySelector(':scope > .relative') || TH) as HTMLElement;
     const inHeader = (this.settings.toggle || 'rowHeader') === 'rowHeader';
 
     TH.querySelectorAll(`.${TOGGLE_CLASS_NAME}`).forEach(toggle => toggle.remove());
@@ -887,7 +917,11 @@ class NestedRows extends BasePlugin {
     };
   }
 
-  /** Redraws, keeping the selection on visible cells. */
+  /**
+   * Redraws, keeping the selection on visible cells.
+   *
+   * @private
+   */
   refresh(): void {
     const selected = this.hot.getSelectedLast();
     const count = this.hot.countRows();

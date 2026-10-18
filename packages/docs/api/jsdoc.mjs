@@ -229,6 +229,7 @@ const readSignature = (text) => {
       name: name.replace(/^\.\.\.|\?$/g, ''),
       type: type.join(': ') || literalType(defaultValue),
       default: defaultValue,
+      optional: /\?$/.test(name) || defaultValue !== undefined,
     };
   });
   const returns = /^\s*:\s*([\s\S]*?)\s*\{\s*$/m.exec(text.slice(end).split('\n').slice(0, 3).join('\n'));
@@ -236,10 +237,11 @@ const readSignature = (text) => {
   return { params, returns: returns?.[1] ?? '' };
 };
 
-/** Fills the types a TypeScript method's JSDoc leaves out from its signature. */
+/** Fills the types (and the parameters) a TypeScript method's JSDoc leaves out from its signature. */
 const withSignatureTypes = (method, signature) => ({
   ...method,
-  params: method.params.map((param) => {
+  params: !method.params.length ? signature.params.filter(({ name }) => name)
+    .map(({ name, type, optional }) => ({ name, type, optional, description: '' })) : method.params.map((param) => {
     const typed = signature.params.find(({ name }) => name === param.name);
 
     return param.type || !typed ? param : { ...param, type: typed.type };
@@ -259,21 +261,29 @@ const withSignatureTypes = (method, signature) => ({
  * A plugin's file: the `@plugin` comment (name, description, examples) and the class's public methods (the comments
  * followed by `  name(…) {`). `null` when the file has no `@plugin` comment.
  */
-export const readPlugin = (source) => {
-  const headerText = [...source.matchAll(BLOCK)].map(([, text]) => text).find(text => /@plugin\s+\w+/.test(text));
+export const readPlugin = (source, className) => {
+  const tagged = [...source.matchAll(BLOCK)].map(([, text]) => text).find(text => /@plugin\s+\w+/.test(text));
+  // Without `@plugin`, the comment right above the plugin's class (`class Name extends BasePlugin` or a base of it).
+  const untagged = tagged ? null : new RegExp(String.raw`\/\*\*((?:(?!\*\/)[\s\S])*)\*\/\s*\n(?:export\s+)?class\s+(${
+    className || '\\w+'})\s+extends\s+${className ? '\\w+' : 'BasePlugin'}\b`).exec(source);
+  const headerText = tagged ?? untagged?.[1];
 
   if (!headerText) {
     return null;
   }
   const header = parseBlock(headerText);
-  const name = /@plugin\s+(\w+)/.exec(headerText)[1];
+  const name = tagged ? /@plugin\s+(\w+)/.exec(tagged)[1] : untagged[2];
+
+  return { ...header, kind: 'plugin', name, methods: readMethods(source, name) };
+};
+
+/** The documented public methods of a class's source, as methods of `owner`. */
+export const readMethods = (source, owner) => {
   // The comment's text has no `*/`; line comments (e.g. eslint's) may come between it and the method.
-  const methods = [...source.matchAll(/\/\*\*((?:(?!\*\/)[\s\S])*)\*\/\s*\n(?: {2}\/\/[^\n]*\n)* {2}(?:static\s+)?(\w+)\s*\(/g)]
+  return [...source.matchAll(/\/\*\*((?:(?!\*\/)[\s\S])*)\*\/\s*\n(?: {2}\/\/[^\n]*\n)* {2}(?:static\s+)?(\w+)\s*\(/g)]
     .map(({ 0: match, 1: text, 2: method, index }) => withSignatureTypes(
-      { ...parseBlock(text), kind: 'method', owner: name, name: method },
+      { ...parseBlock(text), kind: 'method', owner, name: method },
       readSignature(source.slice(index + match.length)),
     ))
     .filter(method => !method.private && method.name !== 'constructor');
-
-  return { ...header, kind: 'plugin', name, methods };
 };

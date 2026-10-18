@@ -19,6 +19,33 @@ describe('Core side panel', () => {
   const red = { background: '#ffc7ce', color: '#9c0006' };
 
   describe('the panel', () => {
+    it('shows only the active sheet\'s formula bar in a document of several sheets', () => {
+      handsontable({
+        data: data(),
+        formulaBar: true,
+        sidePanel: true,
+        sheets: [{ id: 'two', name: 'Two', data: [[1]] }, { id: 'three', name: 'Three', data: [[2]] }],
+      });
+      const visibleBars = () => Array.from(document.querySelectorAll('.fs-formula-bar'))
+        .filter(bar => bar.offsetParent !== null).length;
+
+      expect(document.querySelectorAll('.fs-formula-bar').length).toBe(3);
+      expect(visibleBars()).toBe(1);
+
+      getInstance().activateSheet('three');
+
+      expect(visibleBars()).toBe(1);
+
+      // New settings for a hidden sheet make its bar again: it stays hidden.
+      getInstance().getSheet('two').updateSettings({ colHeaders: true });
+
+      expect(visibleBars()).toBe(1);
+
+      getInstance().activateSheet('two');
+
+      expect(visibleBars()).toBe(1);
+    });
+
     it('opens at the right of the frame, and the sheet makes room for it', () => {
       const afterOpen = jasmine.createSpy('afterPanelOpen');
       const afterClose = jasmine.createSpy('afterPanelClose');

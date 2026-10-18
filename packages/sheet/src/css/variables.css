@@ -21,7 +21,10 @@
 :where(:root) {
   --fs-color-background: #fff; /* Cell, editor and menu background. */
   --fs-color-invalid: #ff4c42; /* Background of cells that failed validation. */
-  --fs-color-readonly-text: #777; /* Text of read-only cells. */
+  --fs-color-readonly-text: #6e6e6e; /* Text of read-only cells. */
+  --fs-color-link: #0563c1; /* Links in cells. */
+  --fs-text-on-light-fill: #1f1f1f; /* Text on a light fill (a cell style or a rule without a text color). */
+  --fs-text-on-dark-fill: #fff; /* Text on a dark fill. */
   --fs-color-muted-text: #999; /* Placeholders and disabled menu items. */
   --fs-shadow: rgba(0, 0, 0, 0.117647) 0 1px 3px, rgba(0, 0, 0, 0.239216) 0 1px 2px; /* Popup shadow. */
   --fs-row-height: 23px; /* Row height, including the bottom border; FreeSheet reads it when the grid is created. */
@@ -159,7 +162,7 @@
   --fs-validation-error-color: #d9363e; /* A refused value's card and the panel's errors. */
   --fs-menu-icon-color: var(--fs-cell-text); /* Entry icons. */
   --fs-menu-shortcut-color: var(--fs-color-muted-text); /* Entry shortcuts (Ctrl+Z). */
-  --fs-link-color: var(--fs-color-accent, var(--fs-style-color-accent)); /* Cells with a link. */
+  --fs-link-color: var(--fs-color-link); /* Cells with a link. */
   --fs-link-card-radius: 4px; /* Corners of the card under a selected link and of the link editor. */
   --fs-link-card-shadow: 0 2px 8px rgb(0 0 0 / 18%); /* Their shadow. */
   --fs-link-invalid-color: #d9363e; /* An address that is no link. */
@@ -199,7 +202,8 @@
   --fs-color-header-text: initial;
   --fs-color-accent: initial;
   --fs-color-invalid: #ff4c42;
-  --fs-color-readonly-text: #777;
+  --fs-color-readonly-text: #6e6e6e;
+  --fs-color-link: #0563c1;
   --fs-color-muted-text: #999;
   --fs-shadow: rgba(0, 0, 0, 0.117647) 0 1px 3px, rgba(0, 0, 0, 0.239216) 0 1px 2px;
   --fs-search-result-background: #fcedd9;
@@ -260,6 +264,7 @@
   --fs-color-accent: #4c9aff;
   --fs-color-invalid: #5c2b2b;
   --fs-color-readonly-text: #8a8a8a;
+  --fs-color-link: #6cb6ff;
   --fs-color-muted-text: #9a9a9a;
   --fs-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   --fs-search-result-background: #4d3b1f;
@@ -316,7 +321,8 @@
   --fs-color-header-text: initial;
   --fs-color-accent: initial;
   --fs-color-invalid: #ff4c42;
-  --fs-color-readonly-text: #777;
+  --fs-color-readonly-text: #6e6e6e;
+  --fs-color-link: #0563c1;
   --fs-color-muted-text: #999;
   --fs-shadow: rgba(0, 0, 0, 0.117647) 0 1px 3px, rgba(0, 0, 0, 0.239216) 0 1px 2px;
   --fs-search-result-background: #fcedd9;
@@ -376,6 +382,7 @@
     --fs-color-accent: #4c9aff;
     --fs-color-invalid: #5c2b2b;
     --fs-color-readonly-text: #8a8a8a;
+    --fs-color-link: #6cb6ff;
     --fs-color-muted-text: #9a9a9a;
     --fs-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
     --fs-search-result-background: #4d3b1f;

@@ -163,7 +163,11 @@ class StatusBar extends BasePlugin {
     super.destroy();
   }
 
-  /** The grid whose selection the bar shows. */
+  /**
+   * The grid whose selection the bar shows.
+   *
+   * @private
+   */
   activeSheet(): PluginHost {
     // Without a document yet, the grid itself (asking the grid would make a document before its sheets are read).
     const workbook = getWorkbook(this.hot as unknown as Parameters<typeof getWorkbook>[0]);
@@ -205,7 +209,11 @@ class StatusBar extends BasePlugin {
     this.element = bar;
   }
 
-  /** The bar is as wide as the drawn grid, as the formula bar is. */
+  /**
+   * The bar is as wide as the drawn grid, as the formula bar is.
+   *
+   * @private
+   */
   matchGridWidth(): void {
     const wtTable = this.hot.view?.wt?.wtTable;
 
@@ -262,7 +270,11 @@ class StatusBar extends BasePlugin {
     this.element.replaceChildren(left, right);
   }
 
-  /** A value as text: with a format function, `Intl.NumberFormat` options (numbers), or as it is. */
+  /**
+   * A value as text: with a format function, `Intl.NumberFormat` options (numbers), or as it is.
+   *
+   * @private
+   */
   format(value: unknown, format: StatusBarFormat | undefined, context: StatusBarContext): string {
     if (typeof format === 'function') {
       return String(format(value, context));

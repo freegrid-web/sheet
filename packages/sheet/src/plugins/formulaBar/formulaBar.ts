@@ -94,11 +94,17 @@ class FormulaBar extends BasePlugin {
     this.nameBox!.addEventListener('keydown', event => this.onNameKeyDown(event));
     this.nameBox!.addEventListener('input', () => this.setNameInvalid(null));
 
+    // A hidden sheet of a document (new settings make its bar again) keeps its bar hidden too.
+    bar.style.display = root.style.display === 'none' ? 'none' : '';
     root.parentNode?.insertBefore(bar, root);
     this.matchGridWidth();
   }
 
-  /** The bar is as wide as the drawn grid (its table and vertical scrollbar), not as its container. */
+  /**
+   * The bar is as wide as the drawn grid (its table and vertical scrollbar), not as its container.
+   *
+   * @private
+   */
   matchGridWidth(): void {
     const wtTable = this.hot.view?.wt?.wtTable;
 
@@ -152,7 +158,11 @@ class FormulaBar extends BasePlugin {
     this.input!.value = this.sourceText(this.#cell[0], this.#cell[1]);
   }
 
-  /** The cell's source value as text (a formula as its formula). */
+  /**
+   * The cell's source value as text (a formula as its formula).
+   *
+   * @private
+   */
   sourceText(row: number, column: number): string {
     const physicalRow = this.hot.toPhysicalRow(row);
     const value = physicalRow === null ? null : this.hot.getSourceDataAtCell(physicalRow, column);
@@ -160,7 +170,11 @@ class FormulaBar extends BasePlugin {
     return value === null || value === void 0 ? '' : String(value);
   }
 
-  /** Writes the bar's text to the cell and gives the keyboard back to the grid. */
+  /**
+   * Writes the bar's text to the cell and gives the keyboard back to the grid.
+   *
+   * @private
+   */
   confirm(): void {
     (document.activeElement as HTMLElement | null)?.blur();
     if (this.#cell && this.input) {
@@ -175,7 +189,11 @@ class FormulaBar extends BasePlugin {
     this.refresh();
   }
 
-  /** Restores the cell's value in the bar and gives the keyboard back to the grid. */
+  /**
+   * Restores the cell's value in the bar and gives the keyboard back to the grid.
+   *
+   * @private
+   */
   cancel(): void {
     (document.activeElement as HTMLElement | null)?.blur();
     this.refresh();
@@ -219,7 +237,11 @@ class FormulaBar extends BasePlugin {
     }
   }
 
-  /** Marks the address box as invalid with a message (`null` clears it). */
+  /**
+   * Marks the address box as invalid with a message (`null` clears it).
+   *
+   * @private
+   */
   setNameInvalid(message: string | null): void {
     if (!this.nameBox) {
       return;
@@ -229,7 +251,11 @@ class FormulaBar extends BasePlugin {
     this.nameBox.setAttribute('aria-invalid', message === null ? 'false' : 'true');
   }
 
-  /** While the cell is edited in the grid, the bar shows what is typed. */
+  /**
+   * While the cell is edited in the grid, the bar shows what is typed.
+   *
+   * @private
+   */
   mirrorEditor(): void {
     const textarea = (this.hot.getActiveEditor() as { TEXTAREA?: HTMLTextAreaElement } | undefined)?.TEXTAREA;
 

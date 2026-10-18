@@ -79,7 +79,11 @@ class CollapsibleColumns extends BasePlugin {
     super.destroy();
   }
 
-  /** The setting of a group, or `null` when it is not collapsible. */
+  /**
+   * The setting of a group, or `null` when it is not collapsible.
+   *
+   * @private
+   */
   settingFor(group: HeaderGroup): CollapsibleGroup | null {
     // A group from `columns` says it itself.
     if (group.collapsible !== void 0) {
@@ -95,7 +99,11 @@ class CollapsibleColumns extends BasePlugin {
       setting.find(item => item && item.row === group.level && item.col === group.start) || null : null;
   }
 
-  /** The physical column that stays visible when a group is collapsed. */
+  /**
+   * The physical column that stays visible when a group is collapsed.
+   *
+   * @private
+   */
   keptColumn(group: HeaderGroup): number {
     if (group.kept !== void 0) {
       return group.kept;
@@ -112,7 +120,11 @@ class CollapsibleColumns extends BasePlugin {
     return group.start;
   }
 
-  /** The button of a group's header (used by nested headers), or `null`. */
+  /**
+   * The button of a group's header (used by nested headers), or `null`.
+   *
+   * @private
+   */
   button(group: HeaderGroup): HTMLElement | null {
     if (!this.settingFor(group)) {
       return null;
@@ -226,7 +238,11 @@ class CollapsibleColumns extends BasePlugin {
     this.hot.runHooks(`afterColumn${action}`, group.level, group.start);
   }
 
-  /** Hides the columns of the collapsed groups but the one each keeps. */
+  /**
+   * Hides the columns of the collapsed groups but the one each keeps.
+   *
+   * @private
+   */
   updateVisibility(): void {
     const groups = (this.nestedHeaders?.groups() || []).filter(group => this.settingFor(group));
     const hidden: number[] = [];

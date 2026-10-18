@@ -78,7 +78,11 @@ export default abstract class Outline extends BasePlugin {
     super.updatePlugin();
   }
 
-  /** The groups of the saved form (`{ groups }`). */
+  /**
+   * The groups of the saved form (`{ groups }`).
+   *
+   * @private
+   */
   readSetting(): void {
     const setting = this.hot.getSettings()[this.settingName] as boolean | OutlineSettings;
     const groups = setting && typeof setting === 'object' && Array.isArray(setting.groups) ? setting.groups : [];
@@ -89,17 +93,29 @@ export default abstract class Outline extends BasePlugin {
     this.update(false);
   }
 
-  /** Outer groups first, then by their first index. */
+  /**
+   * Outer groups first, then by their first index.
+   *
+   * @private
+   */
   sortGroups(): void {
     this.#groups.sort((a, b) => a.start - b.start || b.end - a.end);
   }
 
-  /** How many groups hold the group (itself included): 1 for an outermost group. */
+  /**
+   * How many groups hold the group (itself included): 1 for an outermost group.
+   *
+   * @private
+   */
   levelOf(group: Group): number {
     return this.#groups.filter(other => other.start <= group.start && other.end >= group.end).length;
   }
 
-  /** The deepest level. */
+  /**
+   * The deepest level.
+   *
+   * @private
+   */
   maxLevel(): number {
     return this.#groups.reduce((deepest, group) => Math.max(deepest, this.levelOf(group)), 0);
   }
@@ -112,7 +128,11 @@ export default abstract class Outline extends BasePlugin {
     return (this.axis === 'row' ? this.hot.toPhysicalRow(visual) : this.hot.toPhysicalColumn(visual)) ?? visual;
   }
 
-  /** Where the group's −/+ button is: the index after it, or the index before it at the end of the data. */
+  /**
+   * Where the group's −/+ button is: the index after it, or the index before it at the end of the data.
+   *
+   * @private
+   */
   toggleIndexOf(group: Group): number | null {
     if (group.end + 1 < this.total()) {
       return group.end + 1;
@@ -130,13 +150,21 @@ export default abstract class Outline extends BasePlugin {
       collapsed: group.collapsed }));
   }
 
-  /** The groups in their saved form (data indexes), for `getDocument`. */
+  /**
+   * The groups in their saved form (data indexes), for `getDocument`.
+   *
+   * @private
+   */
   getSavedGroups(): { from: number; to: number; collapsed?: boolean }[] {
     return this.#groups.map(({ start, end, collapsed }) => ({ from: start, to: end, ...(collapsed ? { collapsed } :
       {}) }));
   }
 
-  /** Groups visual indexes from `from` to `to` (not twice the same group, not deeper than 7 levels). */
+  /**
+   * Groups visual indexes from `from` to `to` (not twice the same group, not deeper than 7 levels).
+   *
+   * @private
+   */
   group(from: number, to: number = from): void {
     const start = this.toPhysical(Math.min(from, to));
     const end = this.toPhysical(Math.max(from, to));
@@ -151,7 +179,11 @@ export default abstract class Outline extends BasePlugin {
     this.update();
   }
 
-  /** Removes the groups inside the visual indexes from `from` to `to`, or else the innermost group that holds them. */
+  /**
+   * Removes the groups inside the visual indexes from `from` to `to`, or else the innermost group that holds them.
+   *
+   * @private
+   */
   ungroup(from: number, to: number = from): void {
     const start = this.toPhysical(Math.min(from, to));
     const end = this.toPhysical(Math.max(from, to));
@@ -164,7 +196,11 @@ export default abstract class Outline extends BasePlugin {
     this.update();
   }
 
-  /** Whether the visual indexes from `from` to `to` hold a group or are inside one (something to ungroup). */
+  /**
+   * Whether the visual indexes from `from` to `to` hold a group or are inside one (something to ungroup).
+   *
+   * @private
+   */
   hasGroupAround(from: number, to: number): boolean {
     const start = this.toPhysical(Math.min(from, to));
     const end = this.toPhysical(Math.max(from, to));
@@ -173,7 +209,11 @@ export default abstract class Outline extends BasePlugin {
       (group.start <= start && group.end >= end));
   }
 
-  /** The innermost group whose indexes or whose −/+ is the visual index. */
+  /**
+   * The innermost group whose indexes or whose −/+ is the visual index.
+   *
+   * @private
+   */
   groupAt(index: number): Group | undefined {
     const physical = this.toPhysical(index);
 
@@ -206,6 +246,7 @@ export default abstract class Outline extends BasePlugin {
     this.update();
   }
 
+  /** Expands every group. */
   expandAll(): void {
     this.#groups.forEach((group) => {
       group.collapsed = false;
@@ -213,7 +254,11 @@ export default abstract class Outline extends BasePlugin {
     this.update();
   }
 
-  /** Hides the indexes of collapsed groups and draws the grid again. */
+  /**
+   * Hides the indexes of collapsed groups and draws the grid again.
+   *
+   * @private
+   */
   update(render = true): void {
     const hidden = new Set<number>();
 
@@ -256,12 +301,20 @@ export default abstract class Outline extends BasePlugin {
     }).filter(group => group.end >= group.start);
   }
 
-  /** The gutter's size: a column (or row) per level, and one more for the last level button. */
+  /**
+   * The gutter's size: a column (or row) per level, and one more for the last level button.
+   *
+   * @private
+   */
   gutterSize(): number {
     return (this.maxLevel() + 1) * LEVEL_SIZE + GUTTER_PADDING;
   }
 
-  /** A level's buttons: 1, 2, … (show the outline down to that level). */
+  /**
+   * A level's buttons: 1, 2, … (show the outline down to that level).
+   *
+   * @private
+   */
   levelButtons(className: string, place: (button: HTMLElement, level: number) => void, label: string): HTMLElement {
     const levels = document.createElement('span');
 
@@ -282,7 +335,11 @@ export default abstract class Outline extends BasePlugin {
     return levels;
   }
 
-  /** A group's −/+ button. */
+  /**
+   * A group's −/+ button.
+   *
+   * @private
+   */
   toggleButton(group: Group, index: number, label: string): HTMLElement {
     const toggle = document.createElement('span');
 

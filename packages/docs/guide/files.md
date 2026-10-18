@@ -48,8 +48,18 @@ await hot.importFile(file, { headers: true });      // the first row becomes the
 reads. `importFile` reads a `.csv` file or CSV text into the active sheet; the delimiter (`,`, `;` or tab) is guessed,
 or set with `delimiter`. Numbers become numbers.
 
-```js
-await hot.importFile('name;units\nNorth;12', { headers: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['']],
+  colHeaders: true,
+  rowHeaders: true,
+});
+
+await grid.importFile('name;units\nNorth;12\nSouth;7', { headers: true });
+console.log(grid.getDataAtCell(1, 1)); // 7, a number
 ```
 
 ## Cell styles
@@ -64,10 +74,21 @@ cell: [{ row: 0, col: 0, style: { fontWeight: 'bold', color: '#1f4e78', backgrou
 
 `importFile` shows a loading state while it reads a file. Show it yourself while your data comes:
 
-```js
-hot.setLoading(true);                 // or a text: hot.setLoading('Fetching orders…')
-hot.loadData(await fetchOrders());
-hot.setLoading(false);
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['', ''], ['', ''], ['', '']],
+  colHeaders: ['Order', 'Total'],
+  rowHeaders: true,
+});
+// A server that answers after two seconds.
+const fetchOrders = () => new Promise(resolve => setTimeout(() => resolve([['#101', 120], ['#102', 75]]), 2000));
+
+grid.setLoading('Fetching orders…'); // or true
+grid.loadData(await fetchOrders());
+grid.setLoading(false);
 ```
 
 A layer with a spinner covers the grid and takes the clicks; the grid ignores the keyboard and is marked busy for

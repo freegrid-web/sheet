@@ -230,7 +230,11 @@ class FindAndReplace extends BasePlugin {
     this.setStatus(String(this.hot.getTranslatedPhrase(C.FIND_REPLACED)).replace('{count}', String(count)));
   }
 
-  /** Searches with the box's query and options; `fromSelection` makes the first match the one at or after the cell. */
+  /**
+   * Searches with the box's query and options; `fromSelection` makes the first match the one at or after the cell.
+   *
+   * @private
+   */
   search(fromSelection: boolean): void {
     if (!this.element) {
       return;
@@ -257,7 +261,11 @@ class FindAndReplace extends BasePlugin {
     }
   }
 
-  /** Selects the current match (keeping the focus in the box) and shows "2 of 5". */
+  /**
+   * Selects the current match (keeping the focus in the box) and shows "2 of 5".
+   *
+   * @private
+   */
   showCurrent(): void {
     const match = this.matches[this.current];
 
@@ -276,7 +284,11 @@ class FindAndReplace extends BasePlugin {
     this.keepClearOf(match);
   }
 
-  /** Moves the box to the bottom of the grid (or back to the top) when it covers the current match. */
+  /**
+   * Moves the box to the bottom of the grid (or back to the top) when it covers the current match.
+   *
+   * @private
+   */
   keepClearOf(match: FindMatch | undefined): void {
     const cell = match && this.hot.getCell(match.row, match.col, true);
 
@@ -316,7 +328,11 @@ class FindAndReplace extends BasePlugin {
     }
   }
 
-  /** Highlights the matching cells (the current one more). */
+  /**
+   * Highlights the matching cells (the current one more).
+   *
+   * @private
+   */
   markCell(TD: HTMLTableCellElement, row: number, col: number): void {
     const key = `${row}:${col}`;
     const current = this.matches[this.current];
@@ -325,7 +341,11 @@ class FindAndReplace extends BasePlugin {
     TD.classList.toggle('fs-find-result--current', !!current && current.row === row && current.col === col);
   }
 
-  /** At the top right of the grid's visible area. */
+  /**
+   * At the top right of the grid's visible area.
+   *
+   * @private
+   */
   position(): void {
     if (!this.element) {
       return;

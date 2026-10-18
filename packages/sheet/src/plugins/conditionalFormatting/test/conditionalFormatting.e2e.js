@@ -116,6 +116,22 @@ describe('ConditionalFormatting', () => {
     expect(getCell(2, 0).textContent).toBe('100');
   });
 
+  it('keeps an icon and its number on one line in a narrow column', () => {
+    handsontable({
+      data: [[0.12], [-0.04], [0.31]],
+      colWidths: 40,
+      conditionalFormatting: [{ range: 'A1:A3', iconSet: 'arrows' }],
+    });
+    const icon = getCell(0, 0).querySelector('.fs-cf-icon');
+    const text = document.createRange();
+
+    text.selectNodeContents(getCell(0, 0).lastChild);
+
+    expect(icon).not.toBeNull();
+    expect(Math.abs(text.getBoundingClientRect().top - icon.getBoundingClientRect().top)).toBeLessThan(8);
+    expect(getCell(0, 0).offsetHeight).toBeLessThan(30); // one line: the default row is 23px
+  });
+
   it('formats a column with its format', () => {
     handsontable({ data: data(), columns: [{}, { format: [{ when: 'lt', value: 0, style }] }, {}, {}] });
 

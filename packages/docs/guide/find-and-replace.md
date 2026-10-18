@@ -13,8 +13,21 @@ api: [Find and replace]
   one; **Replace all** changes every match. Undo takes a Replace all back in one step.
 - **Escape** or **×** closes the box.
 
-```js
-new FreeSheet(container, { data, findAndReplace: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Apples', 'Fruit', 'EUR'],
+    ['Pears', 'Fruit', 'EUR'],
+    ['Carrots', 'Vegetable', 'EUR'],
+    ['Apple juice', 'Drink', 'USD'],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
+  findAndReplace: true, // click a cell, then press Ctrl+F or Ctrl+H
+});
 ```
 
 The matching rules:
@@ -28,11 +41,20 @@ The matching rules:
 
 The plugin can also be used from code:
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Apples', 'EUR'], ['apple pie', 'EUR'], ['Pears', 'USD']],
+  colHeaders: true,
+  findAndReplace: true,
+});
 const finder = grid.getPlugin('findAndReplace');
 
-finder.find('apple', { matchCase: true });          // [{ row: 0, col: 0 }, …]
-finder.replace('EUR', 'EUR €', { entireCell: true }); // how many cells changed
+console.log(finder.find('apple'));                     // [{ row: 0, col: 0 }, { row: 1, col: 0 }]
+console.log(finder.find('apple', { matchCase: true })); // [{ row: 1, col: 0 }]
+finder.replace('EUR', '€', { entireCell: true });       // 2: how many cells changed
 finder.open('replace');
 ```
 

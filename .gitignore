@@ -13,3 +13,5 @@ packages/docs/api/methods.md
 packages/docs/api/events.md
 packages/docs/api/settings.md
 packages/docs/api/plugins.md
+# Live code blocks of the pages, written by packages/docs/.vitepress/liveSnippets.mjs
+packages/docs/examples/live/

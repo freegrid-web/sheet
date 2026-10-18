@@ -21,70 +21,30 @@ Add classes to cells, columns or the whole grid with `className`. Several helper
 | `fs-invalid` | Added automatically to invalid cells |
 | `fs-search-result` | Added by the search plugin to matching cells |
 
-```js
-columns: [{ className: 'fs-center' }, { className: 'my-highlight' }]
-```
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-```css
-.freesheet td.my-highlight {
-  background: #fff3b0;
-}
+// In your stylesheet: .freesheet td.my-highlight { background: #fff3b0; color: #1f2937; }
+const style = document.createElement('style');
+
+style.textContent = '.freesheet td.my-highlight { background: #fff3b0; color: #1f2937; }';
+document.head.append(style);
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Centered', 'Highlighted'], ['A', 'B']],
+  colHeaders: true,
+  colWidths: 140,
+  columns: [{ className: 'fs-center' }, { className: 'my-highlight' }],
+});
 ```
 
 The `cells` setting and custom renderers can set classes per cell, based on the value.
 
 ## Cell styles
 
-A cell's `style` setting is drawn on the cell (under [conditional formatting](./conditional-formatting)), and Excel
-files keep it:
-
-```js
-cell: [{ row: 0, col: 0, style: { fontWeight: 'bold', color: '#c00000', background: '#fff3b0' } }]
-```
-
-The properties are `fontFamily`, `fontSize`, `fontWeight`, `fontStyle`, `textDecoration`, `color`, `background`, and
-the borders:
-
-- `border` draws a line on every side.
-- `borderTop`, `borderRight`, `borderBottom` and `borderLeft` draw one side each, for example `'2px solid #c00000'`.
-
-Borders are drawn inside the cell, so they never change its size. Excel files keep each side.
-
-`fontSize` is in points, as in a spreadsheet (`'14pt'`); other CSS sizes work too. A row grows to fit the biggest font
-in it. Excel files keep the font and its size.
-
-Users format cells as in a spreadsheet ([example](../examples/formatting)):
-
-- **Ctrl+B**, **Ctrl+I** and **Ctrl+U** toggle bold, italic and underline for the selected cells (on for all of them,
-  or off when all of them have it).
-- The context menu's **Format** entry has bold, italic, underline, strikethrough, text and fill colors, and
-  **Clear formatting**. Add its key `'formatting'` to your menu: `contextMenu: [..., 'alignment', 'formatting']`.
-- `formattingBar: true` opens a formatting bar above the context menu, as in Excel:
-  - the font (each one shown in itself) and its size (a list, or type a size and press Enter);
-  - bold, italic and underline;
-  - fill and text colors;
-  - **Borders**: bottom, top, left, right, all, outside, thick outside, or none. The button draws the last one chosen.
-  - alignment;
-  - **Number format**: General, Number `0,0.00`, Currency `$0,0.00`, Percent `0.00%`;
-  - **Format painter**: copies the selected cells' style, alignment and number format to the next cells you select.
-    Escape cancels it.
-  - clear formatting.
-
-  `formattingBar: { items: ['bold', 'fill_color'] }` chooses the buttons from `'font_family'`, `'font_size'`, `'bold'`,
-  `'italic'`, `'underline'`,
-  `'strikethrough'`, `'fill_color'`, `'text_color'`, `'borders'`, `'alignment'`, `'number_format'`,
-  `'format_painter'` and `'clear'`.
-- The color palettes (in the bar and in the menu) show a color on the selected cells while the pointer is on it; a
-  click keeps it, and closing the palette without a choice leaves the cells as they were.
-
-In code, `setCellStyle(style, ranges?)` merges `style` into the selected cells (or the given ranges); a `null`
-property removes that property, and a `null` style removes the whole style. Undo takes any of these back, and the
-`afterSetCellStyle` event gets the changes.
-
-```js
-grid.setCellStyle({ fontWeight: 'bold', background: null });
-grid.setCellStyle(null); // Clear formatting
-```
+A cell's own fonts, colors, borders and number formats are its `style` setting and its number format: see
+[Formatting](./formatting).
 
 ## Legacy class names
 

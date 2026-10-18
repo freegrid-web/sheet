@@ -8,18 +8,24 @@ The side panel opens at the right of the document, as in Excel: **Comments** lis
 Formatting** the formatting rules. It opens from the context menu (Show all comments; Conditional formatting ▸ Manage
 Rules, or any rule), or with the API:
 
-```js
-const hot = new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(5, 4),
+  colHeaders: true,
+  rowHeaders: true,
   contextMenu: true,
   comments: true,
   conditionalFormatting: true,
   sidePanel: true,           // the element holds the panel: the sheet makes room for it
+  cell: [{ row: 1, col: 1, comment: { value: 'Check this one.', author: 'Ana' } }],
 });
 
-hot.openPanel('comments');
-hot.getOpenPanel();          // 'comments'
-hot.closePanel();
+grid.openPanel('comments');
+console.log(grid.getOpenPanel()); // 'comments'
+// grid.closePanel() closes it.
 ```
 
 With `sidePanel: true` (or a panel's name, which also opens it at start: `sidePanel: 'comments'`) the element you

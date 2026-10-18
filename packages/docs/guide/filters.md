@@ -7,13 +7,25 @@ api: [Filters and the column menu]
 `dropdownMenu: true` puts a ▾ button in each column header. It opens the column menu: sorting (with
 `columnSorting`), filtering (with `filters`) and hiding the column (with `hiddenColumns`).
 
-```js
-new FreeSheet(container, {
-  data,
-  colHeaders: true,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['North', 'Laptop', 1299, '2026-03-02'],
+    ['South', 'Monitor', 249, '2026-03-05'],
+    ['North', 'Keyboard', 79, '2026-03-09'],
+    ['West', 'Laptop', 1249, '2026-03-11'],
+    ['South', 'Mouse', 39, '2026-03-14'],
+    ['West', 'Monitor', 259, '2026-03-20'],
+  ],
+  colHeaders: ['Region', 'Product', 'Price', 'Date'],
+  rowHeaders: true,
+  columns: [{}, {}, { type: 'numeric' }, { type: 'date', dateFormat: 'YYYY-MM-DD' }],
   columnSorting: true,
   filters: true,
-  dropdownMenu: true,
+  dropdownMenu: true, // the ▾ in each column header
 });
 ```
 
@@ -32,17 +44,32 @@ row is shown when it meets the filters of every column.
 
 ## Filtering with the API
 
-```js
-const filters = hot.getPlugin('filters');
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-filters.addCondition(1, 'gt', [100]);                     // visual column, condition, arguments
-filters.addCondition(0, 'by_value', [['North', 'South']]); // keep these values (as text)
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['North', 'Laptop', 1299],
+    ['South', 'Monitor', 249],
+    ['North', 'Keyboard', 79],
+    ['West', 'Laptop', 1249],
+    ['South', 'Mouse', ''],
+  ],
+  colHeaders: ['Region', 'Product', 'Price'],
+  rowHeaders: true,
+  filters: true,
+  dropdownMenu: true,
+});
+const filters = grid.getPlugin('filters');
+
+filters.addCondition(2, 'gt', [100]);                     // visual column, condition, arguments
 filters.addCondition(2, 'empty', [], 'disjunction');      // OR with the column's other conditions
+filters.addCondition(0, 'by_value', [['North', 'South']]); // keep these values (as text)
 filters.filter();                                         // apply
 
-filters.getConditions(1);       // [{ name: 'gt', args: [100] }]
-filters.removeConditions(1);    // one column (then filter())
-filters.clearConditions();      // every column
+console.log(filters.getConditions(2)); // the column's conditions: gt 100, empty
+// filters.removeConditions(2) for one column (then filter()), filters.clearConditions() for all.
 ```
 
 Conditions: `empty`, `not_empty`, `eq`, `neq`, `begins_with`, `ends_with`, `contains`, `not_contains`, `gt`, `gte`,
@@ -59,15 +86,27 @@ the `filters` setting accepts them too (`filters: { conditions }`), and `getDocu
 built-in ones: in `addCondition`, in the column menu, with And/Or, and in saved documents (which keep only its name
 and arguments, so register it again before loading).
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
 FreeSheet.filters.registerCondition('regex', {
   title: 'Matches pattern',   // its name in the column menu
   arity: 1,                   // how many values are typed in the menu: 0, 1 or 2 (default 1)
   types: ['text'],            // the column types the menu offers it for: 'text', 'numeric', 'date' (default all)
-  test: (value, [pattern], { type, dateFormat }) => new RegExp(pattern, 'i').test(String(value ?? '')),
+  test: (value, [pattern]) => new RegExp(pattern, 'i').test(String(value ?? '')),
 });
 
-hot.getPlugin('filters').addCondition(0, 'regex', ['^N']);
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['North'], ['South'], ['Northwest'], ['East']],
+  colHeaders: ['Region'],
+  rowHeaders: true,
+  filters: true,
+  dropdownMenu: true,
+});
+
+grid.getPlugin('filters').addCondition(0, 'regex', ['^N']);
+grid.getPlugin('filters').filter();
 ```
 
 `test` gets the value the cell shows (a formula's result), the arguments and the column's type and date format, and
@@ -85,13 +124,22 @@ filter is applied again, as in Excel; `filters: { reapplyOnChange: true }` filte
 
 ## Choosing the menu items
 
-```js
-dropdownMenu: [
-  'sort_asc', 'sort_desc', '---------',
-  'filter_by_value', 'filter_action_bar',
-  '---------',
-  { name: 'Show details', callback: column => showDetails(column) },
-],
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Oslo', 709000], ['Riga', 605000], ['Bern', 134000]],
+  colHeaders: ['City', 'Population'],
+  columnSorting: true,
+  filters: true,
+  dropdownMenu: [
+    'sort_asc', 'sort_desc', '---------',
+    'filter_by_value', 'filter_action_bar',
+    '---------',
+    { name: 'Show the column number', callback: column => alert(`Column ${column + 1}`) },
+  ],
+});
 ```
 
 Items: `sort_asc`, `sort_desc`, `clear_sort`, `filter_by_condition`, `filter_by_value`, `filter_action_bar` (OK and

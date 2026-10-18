@@ -55,7 +55,11 @@ abstract class HiddenIndexes extends BasePlugin {
     return !!this.hot.getSettings()[this.settingName] || this.hiddenByColumns().length > 0;
   }
 
-  /** Columns: the physical columns marked `hidden: true` in `columns`. */
+  /**
+   * Columns: the physical columns marked `hidden: true` in `columns`.
+   *
+   * @private
+   */
   hiddenByColumns(): number[] {
     const columns = this.axis === 'column' ? this.hot.getSettings().columns : null;
 
@@ -110,7 +114,11 @@ abstract class HiddenIndexes extends BasePlugin {
     super.updatePlugin();
   }
 
-  /** Hides the rows (columns) the setting lists. */
+  /**
+   * Hides the rows (columns) the setting lists.
+   *
+   * @private
+   */
   applySettings(): void {
     const indexes = this.axis === 'row' ? this.settings.rows : this.settings.columns;
 
@@ -118,24 +126,40 @@ abstract class HiddenIndexes extends BasePlugin {
       ...this.hiddenByColumns()]);
   }
 
-  /** The number of physical rows (columns). */
+  /**
+   * The number of physical rows (columns).
+   *
+   * @private
+   */
   total(): number {
     return this.axis === 'row' ? this.hot.countSourceRows() : this.hot.countSourceCols();
   }
 
-  /** Ordered index (before hiding) → physical. */
+  /**
+   * Ordered index (before hiding) → physical.
+   *
+   * @private
+   */
   orderedToPhysical(ordered: number): number {
     const hook = this.axis === 'row' ? 'modifyRow' : 'modifyCol';
 
     return this.hot.hasHook(hook) ? this.hot.runHooks(hook, ordered) : ordered;
   }
 
-  /** Physical → ordered index (before hiding). */
+  /**
+   * Physical → ordered index (before hiding).
+   *
+   * @private
+   */
   physicalToOrdered(physical: number): number {
     return this.hot.runHooks(this.axis === 'row' ? 'unmodifyRow' : 'unmodifyCol', physical);
   }
 
-  /** The visible rows (columns). */
+  /**
+   * The visible rows (columns).
+   *
+   * @private
+   */
   count(): number {
     return this.axis === 'row' ? this.hot.countRows() : this.hot.countCols();
   }
@@ -144,6 +168,8 @@ abstract class HiddenIndexes extends BasePlugin {
    * Hides rows (columns).
    *
    * @param visualIndexes Visual indexes.
+   *
+   * @private
    */
   hide(visualIndexes: number[]): void {
     const count = this.count();
@@ -160,6 +186,8 @@ abstract class HiddenIndexes extends BasePlugin {
    * Shows hidden rows (columns).
    *
    * @param physicalIndexes Physical indexes (a hidden row has no visual index).
+   *
+   * @private
    */
   show(physicalIndexes: number[]): void {
     const shown = [...new Set(physicalIndexes)].filter(index => this.visibility.isHiddenBy(this.settingName, index));
@@ -167,7 +195,11 @@ abstract class HiddenIndexes extends BasePlugin {
     this.change(this.getHidden().filter(index => shown.indexOf(index) === -1), shown, 'Unhide');
   }
 
-  /** The hidden rows (columns) as physical indexes, in ascending order. */
+  /**
+   * The hidden rows (columns) as physical indexes, in ascending order.
+   *
+   * @private
+   */
   getHidden(): number[] {
     return this.visibility.getHidden(this.settingName);
   }
@@ -187,6 +219,8 @@ abstract class HiddenIndexes extends BasePlugin {
    * @param hidden Every hidden physical index after the change.
    * @param changed The physical indexes hidden or shown.
    * @param action `Hide` or `Unhide`.
+   *
+   * @private
    */
   change(hidden: number[], changed: number[], action: 'Hide' | 'Unhide'): void {
     if (!changed.length || this.hot.runHooks(`before${action}${this.noun}`, changed) === false) {
@@ -199,7 +233,11 @@ abstract class HiddenIndexes extends BasePlugin {
     this.refresh();
   }
 
-  /** Sets the hidden rows (columns) to a saved set (undo and redo), through the hooks. */
+  /**
+   * Sets the hidden rows (columns) to a saved set (undo and redo), through the hooks.
+   *
+   * @private
+   */
   restore(hidden: number[]): void {
     const current = this.getHidden();
     const shown = current.filter(index => hidden.indexOf(index) === -1);
@@ -212,7 +250,11 @@ abstract class HiddenIndexes extends BasePlugin {
     }
   }
 
-  /** Redraws, keeping the selection on visible cells. */
+  /**
+   * Redraws, keeping the selection on visible cells.
+   *
+   * @private
+   */
   refresh(): void {
     const selected = this.hot.getSelectedLast();
     const count = this.count();
@@ -237,7 +279,11 @@ abstract class HiddenIndexes extends BasePlugin {
     }
   }
 
-  /** After new data is loaded, indexes past its end are no longer hidden. */
+  /**
+   * After new data is loaded, indexes past its end are no longer hidden.
+   *
+   * @private
+   */
   dropMissing(): void {
     const total = this.total();
     const hidden = this.getHidden();
@@ -247,14 +293,22 @@ abstract class HiddenIndexes extends BasePlugin {
     }
   }
 
-  /** Whether the row (column) next to a visible one, before or after it, is hidden by this plugin. */
+  /**
+   * Whether the row (column) next to a visible one, before or after it, is hidden by this plugin.
+   *
+   * @private
+   */
   isGap(visual: number, side: -1 | 1): boolean {
     const neighbour = this.visibility.toOrdered(visual) + side;
 
     return neighbour >= 0 && neighbour < this.total() && this.isHidden(this.orderedToPhysical(neighbour));
   }
 
-  /** Marks a header next to hidden rows (columns): a double line and an arrow that shows them. */
+  /**
+   * Marks a header next to hidden rows (columns): a double line and an arrow that shows them.
+   *
+   * @private
+   */
   markHeader(visual: number, TH: HTMLTableCellElement): void {
     const indicators = this.settings.indicators !== false && visual >= 0;
     const before = indicators && this.isGap(visual, -1);
@@ -286,6 +340,8 @@ abstract class HiddenIndexes extends BasePlugin {
   /**
    * The hidden rows (columns) inside a visual range: between its first and last row, and before the first visible row
    * or after the last one when the range reaches them.
+   *
+   * @private
    */
   hiddenWithin(from: number, to: number): number[] {
     const count = this.count();
@@ -299,7 +355,11 @@ abstract class HiddenIndexes extends BasePlugin {
     });
   }
 
-  /** The selected visual range along this axis, or `null`. */
+  /**
+   * The selected visual range along this axis, or `null`.
+   *
+   * @private
+   */
   selectedRange(): [number, number] | null {
     const selected = this.hot.getSelectedLast();
 
@@ -334,7 +394,11 @@ abstract class HiddenIndexes extends BasePlugin {
     }
   };
 
-  /** The tooltip of an arrow: what it shows, for example "Show rows: 2–3" or "Show columns: B, D–F". */
+  /**
+   * The tooltip of an arrow: what it shows, for example "Show rows: 2–3" or "Show columns: B, D–F".
+   *
+   * @private
+   */
   toggleTitle(ordered: number, side: -1 | 1): string {
     const limit = 1000;
     const total = this.total();
@@ -365,7 +429,11 @@ abstract class HiddenIndexes extends BasePlugin {
     return `${phrase}: ${ranges.join(', ')}${indexes.length > limit ? '…' : ''}`;
   }
 
-  /** The hidden rows (columns) right before or after an ordered index, up to the next visible one. */
+  /**
+   * The hidden rows (columns) right before or after an ordered index, up to the next visible one.
+   *
+   * @private
+   */
   adjacentHidden(ordered: number, side: -1 | 1): number[] {
     const hidden: number[] = [];
     const total = this.total();

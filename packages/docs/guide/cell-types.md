@@ -7,14 +7,26 @@ api: [Cell types and meta, Editing and validation]
 A cell type bundles a renderer (how a value looks), an editor (how it is edited) and a validator (what is
 allowed). Set it with `type`, usually per column:
 
-```js
-columns: [
-  { type: 'text' },
-  { type: 'numeric', numericFormat: { pattern: '0,0.00' } },
-  { type: 'date', dateFormat: 'YYYY-MM-DD', correctFormat: true },
-  { type: 'checkbox' },
-  { type: 'dropdown', source: ['Yes', 'No'] },
-]
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Laptop', 1299.5, '2026-03-02', true, 'Yes'],
+    ['Monitor', 249, '2026-03-05', false, 'No'],
+    ['Keyboard', 79.99, '2026-03-09', true, 'Yes'],
+  ],
+  colHeaders: ['Text', 'Numeric', 'Date', 'Checkbox', 'Dropdown'],
+  rowHeaders: true,
+  columns: [
+    { type: 'text' },
+    { type: 'numeric', numericFormat: { pattern: '0,0.00' } },
+    { type: 'date', dateFormat: 'YYYY-MM-DD', correctFormat: true },
+    { type: 'checkbox' },
+    { type: 'dropdown', source: ['Yes', 'No'] },
+  ],
+});
 ```
 
 | Type | Notes |
@@ -33,12 +45,22 @@ columns: [
 Invalid values get the `htInvalid` class. `allowInvalid: false` rejects them instead of keeping them.
 Your own rule:
 
-```js
-{
-  validator(value, callback) {
-    callback(typeof value === 'string' && value.length <= 20);
-  },
-}
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Short name'], ['A name that is far too long for this column']],
+  colHeaders: ['Name (up to 20 letters)'],
+  colWidths: 320,
+  columns: [{
+    validator(value, callback) {
+      callback(typeof value === 'string' && value.length <= 20);
+    },
+  }],
+});
+
+grid.validateCells(); // marks the second cell
 ```
 
 See it live in the [cell types example](../examples/cell-types).
@@ -49,14 +71,22 @@ See it live in the [cell types example](../examples/cell-types).
 written for numbro keep working; `culture` (default `en-US`) gives the separators and the currency, from the browser,
 for any locale.
 
-```js
-columns: [
-  { type: 'numeric', numericFormat: { pattern: '0,0.00' } }, // 1,234.50
-  { type: 'numeric', numericFormat: { pattern: '$0,0.00', culture: 'en-US' } }, // $1,234.50
-  { type: 'numeric', numericFormat: { pattern: '0,0.00 $', culture: 'de-DE' } }, // 1.234,50 €
-  { type: 'numeric', numericFormat: { pattern: '0.0%' } }, // 12.5%
-  { type: 'numeric', numericFormat: { style: 'unit', unit: 'kilogram', culture: 'lt-LT' } }, // Intl options
-]
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [[1234.5, 1234.5, 1234.5, 0.125, 1234.5]],
+  colHeaders: ['0,0.00', '$0,0.00', '0,0.00 $ (de-DE)', '0.0%', 'Intl: kilogram'],
+  colWidths: 130,
+  columns: [
+    { type: 'numeric', numericFormat: { pattern: '0,0.00' } }, // 1,234.50
+    { type: 'numeric', numericFormat: { pattern: '$0,0.00', culture: 'en-US' } }, // $1,234.50
+    { type: 'numeric', numericFormat: { pattern: '0,0.00 $', culture: 'de-DE' } }, // 1.234,50 €
+    { type: 'numeric', numericFormat: { pattern: '0.0%' } }, // 12.5%
+    { type: 'numeric', numericFormat: { style: 'unit', unit: 'kilogram', culture: 'lt-LT' } }, // Intl options
+  ],
+});
 ```
 
 | Pattern part | Meaning | Example (1234.5) |
@@ -89,23 +119,31 @@ day and <kbd>Esc</kbd> closes the calendar. While you type a date in the cell's 
 
 `datePickerConfig` sets the calendar:
 
-```js
-columns: [{
-  type: 'date',
-  dateFormat: 'YYYY-MM-DD',
-  datePickerConfig: {
-    firstDay: 1, // weeks start on Monday (0 = Sunday, the default)
-    minDate: new Date(2026, 0, 1),
-    maxDate: new Date(2026, 11, 31),
-    disableWeekends: true,
-    disableDayFn: date => date.getDate() === 13, // days that cannot be picked
-    yearRange: [2020, 2030], // the year list: [from, to], or n years around the shown year (default 10)
-    i18n: { previousMonth: 'Ankstesnis mėnuo', nextMonth: 'Kitas mėnuo', months: [/* 12 names */],
-      weekdays: [/* 7 names, Sunday first */], weekdaysShort: [/* 7 short names */] },
-    onSelect: () => {}, onOpen: () => {}, onClose: () => {}, onDraw: () => {},
-  },
-}]
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['2026-03-02'], ['2026-03-16'], ['']],
+  colHeaders: ['Meeting (double-click)'],
+  colWidths: 220,
+  columns: [{
+    type: 'date',
+    dateFormat: 'YYYY-MM-DD',
+    datePickerConfig: {
+      firstDay: 1, // weeks start on Monday (0 = Sunday, the default)
+      minDate: new Date(2026, 0, 1),
+      maxDate: new Date(2026, 11, 31),
+      disableWeekends: true,
+      disableDayFn: date => date.getDate() === 13, // days that cannot be picked
+      yearRange: [2020, 2030], // the year list: [from, to], or n years around the shown year (default 10)
+    },
+  }],
+});
 ```
+
+More options: `i18n` names the months and days (`{ previousMonth, nextMonth, months, weekdays, weekdaysShort }`,
+weekdays from Sunday), and `onSelect`, `onOpen`, `onClose` and `onDraw` are called with the calendar.
 
 `defaultDate` (a cell setting) is the date shown when the cell is empty. The calendar's colors come from the
 `--fs-datepicker-*` [theme variables](./theming).

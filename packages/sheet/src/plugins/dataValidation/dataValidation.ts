@@ -75,7 +75,11 @@ class DataValidation extends BasePlugin {
     super.destroy();
   }
 
-  /** Gives a cell the validator (and for a list, the dropdown) of its rule; puts its own settings back without one. */
+  /**
+   * Gives a cell the validator (and for a list, the dropdown) of its rule; puts its own settings back without one.
+   *
+   * @private
+   */
   applyRule(meta: Meta): void {
     const rule = meta.validation;
     const current = applied.get(meta);
@@ -114,7 +118,11 @@ class DataValidation extends BasePlugin {
     }
   }
 
-  /** A list's items: its own, or the values of its range. */
+  /**
+   * A list's items: its own, or the values of its range.
+   *
+   * @private
+   */
   itemsOf(rule: Validation): unknown[] {
     if (Array.isArray(rule.source)) {
       return rule.source;
@@ -196,7 +204,11 @@ class DataValidation extends BasePlugin {
     }
   }
 
-  /** A card under a cell (above it at the bottom of the window). */
+  /**
+   * A card under a cell (above it at the bottom of the window).
+   *
+   * @private
+   */
   showCard(row: number, col: number, text: string, className: string): void {
     this.closeCard();
     const card = document.createElement('div');

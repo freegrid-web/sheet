@@ -14,7 +14,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: Examples
-      link: /examples/basics
+      link: /examples/
     - theme: alt
       text: View on GitHub
       link: https://github.com/freegrid-web/sheet

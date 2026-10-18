@@ -2,7 +2,7 @@
 // Usage: pnpm build (FreeSheet) && pnpm --filter @freegrid/docs build && node test/smoke.js
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
@@ -61,6 +61,19 @@ if (!existsSync(dist)) {
   process.exit(1);
 }
 
+// Every other guide page too: its live examples (```js live blocks) must render.
+for (const file of readdirSync(join(dist, 'guide')).filter(name => name.endsWith('.html'))) {
+  if (!PAGES.some(page => page.path === `guide/${file}`)) PAGES.push({ path: `guide/${file}`, grids: 0 });
+}
+// Every example page has its grid; the gallery and the demo's code page have none.
+for (const file of readdirSync(join(dist, 'examples')).filter(name => name.endsWith('.html'))) {
+  if (!PAGES.some(page => page.path === `examples/${file}`)) {
+    PAGES.push({ path: `examples/${file}`, grids: ['index.html', 'demo-source.html'].includes(file) ? 0 : 1 });
+  }
+}
+// The full demo: one document of three sheets, each with a formula bar, only the active one shown.
+PAGES.push({ path: 'demo.html', grids: 0 });
+
 // Serves the built site under BASE, like GitHub Pages (including `/x` → `/x.html`).
 const server = createServer(async(req, res) => {
   let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
@@ -104,8 +117,14 @@ for (const style of ['modern', 'classic']) for (const appearance of ['dark', 'li
   page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
   await page.goto(`${origin}${BASE}${path}`);
-  if (grids > 0) {
-    await page.waitForSelector('.live-example .handsontable .htCore', { timeout: 10000 }).catch(() => {});
+  // Every live example of the page renders (the pages' ```js live blocks too), at least `grids`.
+  await page.waitForLoadState('load');
+  const frames = await page.locator('.live-example').count();
+  const expected = Math.max(grids, frames);
+
+  if (expected > 0) {
+    await page.waitForFunction(count => [...document.querySelectorAll('.live-example, .theme-playground')]
+      .filter(el => el.querySelector('.htCore')).length >= count, expected, { timeout: 10000 }).catch(() => {});
   }
   const rendered = await page.locator('.live-example, .theme-playground').evaluateAll(els => els.filter(el => el.querySelector('.htCore')).length);
   // The formulas example loads IronCalc: Apples' total (=B2*C2) shows its result.
@@ -125,7 +144,8 @@ for (const style of ['modern', 'classic']) for (const appearance of ['dark', 'li
     // The visible sheet's grid (a document with several sheets hides the others).
     const master = Array.from(el.querySelectorAll('.ht_master')).find(node => node.offsetParent !== null);
     const table = master && master.querySelector('table.htCore');
-    const cell = master && master.querySelector('td');
+    // A cell without a font size of its own (a bigger font makes its row taller, as it should).
+    const cell = master && Array.from(master.querySelectorAll('td')).find(td => !td.style.fontSize && !td.closest('tr').querySelector('td[style*="font-size"]'));
     const holder = master && master.querySelector('.wtHolder');
 
     if (!table || !cell || !holder) return [];
@@ -137,7 +157,10 @@ for (const style of ['modern', 'classic']) for (const appearance of ['dark', 'li
     if (Math.abs(cell.getBoundingClientRect().height - rowHeight) > 1) {
       problems.push(`row height is ${cell.getBoundingClientRect().height}px, --fs-row-height is ${rowHeight}px`);
     }
-    if (holder.getBoundingClientRect().height < 80) problems.push(`grid viewport is ${holder.getBoundingClientRect().height}px tall`);
+    // A small grid may be short, but never shorter than its rows (or 80px).
+    const needed = Math.min(80, table.getBoundingClientRect().height);
+
+    if (holder.getBoundingClientRect().height < needed - 1) problems.push(`grid viewport is ${holder.getBoundingClientRect().height}px tall`);
     // Text must stay readable on the cell background in the light and the dark theme (WCAG AA: 4.5:1).
     const luminance = (color) => {
       const [r, g, b] = color.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number)
@@ -183,6 +206,24 @@ for (const style of ['modern', 'classic']) for (const appearance of ['dark', 'li
       await target.close();
     }
   }
+  // A guide page ends with the API of its topics: Row groups has the settings and both plugins' methods.
+  if (path === 'guide/row-groups.html') {
+    const entries = await page.locator('.api-block dt a').evaluateAll(els => els.map(el => el.textContent));
+
+    ['rowGroups: Boolean|Object', 'groupRows(from, to)', 'groupColumns(from, to?)'].forEach((entry) => {
+      if (!entries.includes(entry)) failures.push(`${path}: the API block has no ${entry}`);
+    });
+  }
+  if (path === 'demo.html') {
+    await page.waitForSelector('.demo-app .htCore', { timeout: 15000 }).catch(() => {});
+    const tabs = await page.locator('.demo-app .fs-sheet-tab').count();
+    const bars = await page.locator('.demo-app .fs-formula-bar').evaluateAll(els => els.filter(el => el.offsetParent).length);
+    const fills = await page.locator('.demo-app').evaluate(el => el.getBoundingClientRect().bottom - window.innerHeight);
+
+    if (tabs !== 3) failures.push(`${path}: ${tabs} sheet tabs, expected 3`);
+    if (bars !== 1) failures.push(`${path}: ${bars} visible formula bars, expected 1`);
+    if (Math.abs(fills) > 1) failures.push(`${path}: the demo ends ${fills}px from the window's bottom`);
+  }
   if (path === 'guide/theming.html') {
     const rows = await page.locator('table.theming-variables tbody tr').count();
 
@@ -218,7 +259,11 @@ for (const style of ['modern', 'classic']) for (const appearance of ['dark', 'li
 
     if (coveredNav) failures.push(`${path || '/'}: a live example covers the top bar (${coveredNav})`);
   }
-  if (rendered < grids) failures.push(`${path || '/'}: expected ${grids} live grid(s), found ${rendered}`);
+  if (rendered < expected) failures.push(`${path || '/'}: expected ${expected} live grid(s), found ${rendered}`);
+  // Each example has its Copy and Open in playground buttons.
+  const actions = await page.locator('.live-example .live-example__actions button').count();
+
+  if (actions !== frames * 2) failures.push(`${path || '/'}: ${actions} example buttons for ${frames} example(s)`);
   layoutProblems.forEach(p => failures.push(`${path || '/'}: ${p}`));
   errors.forEach(e => failures.push(`${path || '/'}: ${e}`));
   console.log(`${failures.length ? '…' : '✓'} ${path || '/'} [${style}, ${appearance}] (${rendered} grid(s))`);

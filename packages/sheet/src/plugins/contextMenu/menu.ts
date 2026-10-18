@@ -362,6 +362,8 @@ class Menu {
   setPosition(coords: CursorSource | DOMRect): void {
     const cursor = new Cursor(coords as CursorSource);
 
+    this.container.style.maxHeight = '';
+    this.container.style.overflowY = '';
     if (this.options.keepInViewport) {
       if (cursor.fitsBelow(this.container)) {
         this.setPositionBelowCursor(cursor);
@@ -370,7 +372,7 @@ class Menu {
         this.setPositionAboveCursor(cursor);
 
       } else {
-        this.setPositionBelowCursor(cursor);
+        this.setPositionInViewport(cursor);
       }
       if (cursor.fitsOnRight(this.container)) {
         this.setPositionOnRightOfCursor(cursor);
@@ -381,6 +383,23 @@ class Menu {
       this.setPositionBelowCursor(cursor);
       this.setPositionOnRightOfCursor(cursor);
     }
+  }
+
+  /**
+   * Places a menu that fits neither below nor above the cursor as low as the window allows; a menu taller than the
+   * window gets the window's height and scrolls inside.
+   */
+  setPositionInViewport(cursor: Cursor): void {
+    const margin = 4;
+    const available = window.innerHeight - 2 * margin;
+
+    if (this.container.offsetHeight > available) {
+      this.container.style.maxHeight = `${available}px`;
+      this.container.style.overflowY = 'auto';
+    }
+    const scrollTop = cursor.top - cursor.topRelative;
+
+    this.container.style.top = `${scrollTop + Math.max(margin, window.innerHeight - margin - this.container.offsetHeight)}px`;
   }
 
   /**
@@ -750,7 +769,10 @@ class Menu {
     const holderStyle = this.hotMenu!.view.wt.wtTable.holder.style;
     const currentHiderWidth = parseInt(hiderStyle.width, 10);
 
-    const realHeight = data.reduce((accumulator, value) => accumulator + (value.name === SEPARATOR ? 1 : 26), 0);
+    // At least the drawn rows' height: the Modern style's rows are taller than the Classic one's.
+    const drawn = (this.hotMenu!.view.wt.wtTable.TABLE as HTMLElement).offsetHeight;
+    const realHeight = Math.max(drawn,
+      data.reduce((accumulator, value) => accumulator + (value.name === SEPARATOR ? 1 : 26), 0));
 
     holderStyle.width = `${currentHiderWidth + 22}px`;
     holderStyle.height = `${realHeight + 4}px`;
@@ -770,6 +792,12 @@ class Menu {
   onAfterSelection(r: number, c: number, r2: number, c2: number, preventScrolling: { value: boolean }): void {
     if (this.keyEvent === false) {
       preventScrolling.value = true;
+
+      return;
+    }
+    // A menu that scrolls inside (taller than the window) shows the item chosen with the keyboard.
+    if (this.container.style.overflowY === 'auto') {
+      (this.hotMenu!.getCell(r, c, true) as HTMLElement | null)?.scrollIntoView({ block: 'nearest' });
     }
   }
 

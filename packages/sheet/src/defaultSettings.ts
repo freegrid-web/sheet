@@ -581,6 +581,25 @@ DefaultSettings.prototype = {
   customBorders: false,
 
   /**
+   * Fills the grid's element with empty cells, as a spreadsheet does: when the element is taller or wider than the
+   * data, empty rows and columns are added until the cells reach its edges, more when it grows, and a screen more when
+   * it is scrolled to the end. They are rows and columns of the data, as with `minRows` and `minCols`, but
+   * `getDocument()` and CSV files leave out the empty ones at the end (Excel files write only cells with content).
+   * Columns are added only to array data without `columns`. The element needs a size of its own (a `height` and a
+   * `width`, or CSS).
+   *
+   * @type {Boolean}
+   * @default false
+   *
+   * @example
+   * ```js
+   * // the element is 600 × 400 px: empty cells fill what the data leaves
+   * fillContainer: true,
+   * ```
+   */
+  fillContainer: false,
+
+  /**
    * Minimum number of rows. At least that number of rows will be created during initialization.
    *
    * @type {Number}

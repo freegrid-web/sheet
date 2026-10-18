@@ -54,6 +54,41 @@ export const bordersToShadow = (style: CellStyle): string => SIDES.map(([side, o
   return line ? `inset ${offset.replace('{w}', `${line.width}px`)} 0 0 ${line.color}` : '';
 }).filter(Boolean).join(', ');
 
+/** The relative luminance (0 to 1) of a color written as `#rgb`, `#rrggbb` or `rgb()`, or `null` for other colors. */
+const luminanceOf = (color: string): number | null => {
+  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(color.trim())?.[1];
+  const rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i.exec(color.trim());
+  const channels = hex ? (hex.length === 3 ? [...hex].map(digit => digit + digit) : [0, 2, 4].map(at => hex.slice(at, at + 2)))
+    .map(part => parseInt(part, 16)) : rgb ? rgb.slice(1, 4).map(Number) : null;
+
+  if (!channels) {
+    return null;
+  }
+
+  return channels.map(channel => channel / 255)
+    .map(channel => (channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4))
+    .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index], 0);
+};
+
+/**
+ * The text color for a fill without a text color of its own, so the text stays readable in every theme: dark on a
+ * light fill, white on a dark one (`--fs-text-on-light-fill`, `--fs-text-on-dark-fill`). `null` when the fill's
+ * color is not one `luminanceOf` reads.
+ */
+export const textOnFill = (background: string): string | null => {
+  const luminance = luminanceOf(background);
+
+  if (luminance === null) {
+    return null;
+  }
+
+  // 0.21: where dark text and white text have the same contrast.
+  return luminance > 0.21 ? 'var(--fs-text-on-light-fill, #1f1f1f)' : 'var(--fs-text-on-dark-fill, #ffffff)';
+};
+
+/** Whether a cell's text color is one `textOnFill` chose (not a color the cell or a rule asked for). */
+export const isTextOnFill = (color: string): boolean => color.startsWith('var(--fs-text-on-');
+
 /**
  * Draws a cell's `style` meta on its cell, after removing the style the cell had for another cell (cells are reused
  * while scrolling). Conditional formatting draws over it.
@@ -76,6 +111,12 @@ export const applyCellStyle = (TD: HTMLTableCellElement, style: CellStyle | unde
   applied.forEach((property) => {
     (TD.style as unknown as Record<string, string>)[property] = style[property as keyof CellStyle]!;
   });
+  const text = style.background && !style.color ? textOnFill(style.background) : null;
+
+  if (text) {
+    TD.style.color = text;
+    applied.push('color');
+  }
   const shadow = bordersToShadow(style);
 
   if (shadow) {

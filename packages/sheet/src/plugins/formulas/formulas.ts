@@ -81,7 +81,11 @@ class Formulas extends BasePlugin {
     return workbook && workbook.model ? workbook.model as unknown as FormulaModel : this.ownModel;
   }
 
-  /** This grid's sheet in the engine's model (0 for a grid alone). */
+  /**
+   * This grid's sheet in the engine's model (0 for a grid alone).
+   *
+   * @private
+   */
   sheet(): number {
     const workbook = getWorkbookOf(this.hot);
 
@@ -218,12 +222,20 @@ class Formulas extends BasePlugin {
   /** Kept for undo, which reports restored cells; the full recalculation that follows covers them. */
   onAfterSetDataAtCell(): void {}
 
-  /** The source value at a physical row and column. */
+  /**
+   * The source value at a physical row and column.
+   *
+   * @private
+   */
   readSource(row: number, column: number): unknown {
     return this.hot.getSourceDataAtCell(row, this.hot.toVisualColumn(column));
   }
 
-  /** Writes a source value without running the change hooks (the engine already has the change). */
+  /**
+   * Writes a source value without running the change hooks (the engine already has the change).
+   *
+   * @private
+   */
   writeSource(row: number, column: number, value: string): void {
     const sourceRow = this.hot.getSourceDataAtRow(row) as unknown;
 
@@ -305,7 +317,11 @@ class Formulas extends BasePlugin {
     }
   }
 
-  /** Writes the engine's formulas (with moved references) into this sheet's data. */
+  /**
+   * Writes the engine's formulas (with moved references) into this sheet's data.
+   *
+   * @private
+   */
   syncFormulas(): void {
     const model = this.model;
 
@@ -347,6 +363,8 @@ class Formulas extends BasePlugin {
    *
    * @param key The owner of the formulas.
    * @param cells A formula for each physical cell, written for that cell.
+   *
+   * @private
    */
   setConditionFormulas(key: string, cells: { row: number; column: number; formula: string }[]): void {
     const model = this.model;
@@ -382,6 +400,8 @@ class Formulas extends BasePlugin {
    * @param key The owner of the formulas.
    * @param row Physical row.
    * @param column Physical column.
+   *
+   * @private
    */
   getConditionResult(key: string, row: number, column: number): boolean {
     const block = this.#conditionBlocks.get(key);
@@ -396,7 +416,11 @@ class Formulas extends BasePlugin {
     return value === true || (typeof value === 'number' && value !== 0);
   }
 
-  /** Clears a key's condition formulas. */
+  /**
+   * Clears a key's condition formulas.
+   *
+   * @private
+   */
   removeConditionFormulas(key: string, evaluate = true): void {
     const block = this.#conditionBlocks.get(key);
     const model = this.model;
@@ -411,7 +435,11 @@ class Formulas extends BasePlugin {
     }
   }
 
-  /** Frees the model this grid created (a document's shared model is freed with the grid that holds it). */
+  /**
+   * Frees the model this grid created (a document's shared model is freed with the grid that holds it).
+   *
+   * @private
+   */
   freeModel(): void {
     this.#conditionBlocks.clear();
     if (this.ownModel && typeof this.ownModel.free === 'function') {

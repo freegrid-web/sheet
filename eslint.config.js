@@ -9,7 +9,9 @@ export default [
   {
     ignores: ['**/node_modules/**', '**/dist/**', 'packages/sheet/lib/**', 'packages/sheet/test/lib/**',
       'packages/sheet/src/3rdparty/walkontable/test/lib/**', 'packages/sheet/test-results/**', '.superpowers/**',
-      'packages/docs/.vitepress/cache/**', 'packages/docs/.vitepress/dist/**'],
+      'packages/docs/.vitepress/cache/**', 'packages/docs/.vitepress/dist/**',
+      // Written from the pages' live code blocks (packages/docs/.vitepress/liveSnippets.mjs).
+      'packages/docs/examples/live/**'],
   },
   js.configs.recommended,
   {

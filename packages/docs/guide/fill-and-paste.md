@@ -21,6 +21,28 @@ Drag the small square at the corner of the selection to fill the cells next to i
 - Formulas are copied with their references moved.
 - A fill is one undo step.
 
+Select the first rows and drag the square down:
+
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    [1, 'Item 1', 'Jan', 'Mon', '2026-01-30'],
+    [3, '', 'Feb', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+    ['', '', '', '', ''],
+  ],
+  colHeaders: ['Step 2', 'Text', 'Months', 'Days', 'Dates'],
+  rowHeaders: true,
+  columns: [{}, {}, {}, {}, { type: 'date', dateFormat: 'YYYY-MM-DD' }],
+});
+
+grid.selectCell(0, 0, 1, 4);
+```
+
 `fillHandle: false` turns the handle off; `fillHandle: 'vertical'` allows only up and down.
 
 ## Copy and paste with formatting
@@ -43,8 +65,23 @@ copyPaste: { formats: false }
 
 Add **Paste** (Ctrl+V) and **Paste special** to the context menu with the keys `'paste'` and `'paste_special'`:
 
-```js
-contextMenu: ['copy', 'cut', 'paste', 'paste_special']
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Price', 'Qty', 'Total'],
+    [4, 3, ''],
+    [2.5, 10, ''],
+    ['', '', ''],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: ['copy', 'cut', 'paste', 'paste_special'],
+  cell: [{ row: 0, col: 0, style: { fontWeight: 'bold' } }, { row: 0, col: 1, style: { fontWeight: 'bold' } }],
+});
+// Copy A1:B1, select A4 and right-click ▸ Paste special ▸ Formatting only, or ▸ Transposed.
 ```
 
 
@@ -60,6 +97,8 @@ contextMenu: ['copy', 'cut', 'paste', 'paste_special']
 - **What is pasted:** the menu entries paste what the grid copied last. A browser does not let a page read the
   clipboard from a menu without asking. When the user has already allowed it and the clipboard holds something else,
   that text is pasted (values only).
+
+From code, `pasteSpecial(mode)` pastes the last copy into the selection:
 
 ```js
 await grid.getPlugin('copyPaste').pasteSpecial('values'); // 'all', 'values', 'formulas', 'formats', 'transpose'

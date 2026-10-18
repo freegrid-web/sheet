@@ -6,17 +6,54 @@ api: [Data validation]
 
 A cell's or a column's `validation` allows only some values, as a spreadsheet's Data validation does.
 
-```js
-new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Write the report', 'Doing', 6],
+    ['Check the numbers', 'Open', 0],
+    ['Send it', 'Done', 2],
+  ],
+  colHeaders: ['Task', 'Status', 'Hours'],
+  rowHeaders: true,
   columns: [
     {},
-    { validation: { type: 'list', source: ['Open', 'Doing', 'Done'] } },             // a dropdown
-    { validation: { type: 'integer', operator: 'between', value: 0, value2: 24,
-      inputMessage: 'Hours: a whole number from 0 to 24', message: 'From 0 to 24' } },
+    { validation: { type: 'list', source: ['Open', 'Doing', 'Done'] } }, // a dropdown
+    {
+      validation: {
+        type: 'integer', operator: 'between', value: 0, value2: 24,
+        inputMessage: 'Hours: a whole number from 0 to 24', message: 'From 0 to 24',
+      },
+    },
   ],
 });
 ```
+
+Type 30 into an Hours cell: the value is refused and the message shows. A warning instead of a refusal, and a list
+from a range of the sheet:
+
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Fruit', 'Order', 'Boxes'],
+    ['Apples', 'Pears', 120],
+    ['Pears', 'Kiwis', 30],
+    ['Plums', 'Apples', 8],
+  ],
+  colHeaders: true,
+  rowHeaders: true,
+  cells: (row, col) => (row > 0 && col === 1 ? { validation: { type: 'list', source: 'A2:A4', strict: false } } :
+    row > 0 && col === 2 ? { validation: { type: 'number', operator: 'greaterOrEqual', value: 10, strict: false } } :
+    {}),
+});
+```
+
+`Kiwis` and `8` are kept but marked: `strict: false` warns instead of refusing.
 
 ## Rules
 
@@ -51,19 +88,38 @@ from the context menu key `'data_validation'`. It shows:
 
 **Apply** sets the rule, **Remove** takes it away, and one undo step takes back either.
 
-```js
-contextMenu: ['undo', 'redo', '---------', 'data_validation'],
-sidePanel: true,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['', ''], ['', ''], ['', '']],
+  colHeaders: true,
+  rowHeaders: true,
+  contextMenu: ['undo', 'redo', '---------', 'data_validation'],
+  sidePanel: true,
+});
+
+grid.selectCell(0, 0, 2, 0);
+grid.openPanel('dataValidation');
 ```
 
 ## From code
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [[5, 3], [8, -1], [2, 4]],
+  colHeaders: ['Price', 'Stock'],
+});
 const validation = grid.getPlugin('dataValidation');
 
-validation.setValidation({ type: 'number', operator: 'greater', value: 0 }); // the selected cells
-validation.setValidation(null, [[0, 1], [0, 2]]);                            // removes it from two cells
-validation.getValidation(0, 1);
+grid.selectCell(0, 0, 2, 1);
+validation.setValidation({ type: 'number', operator: 'greater', value: 0, strict: false }); // the selected cells
+validation.setValidation(null, [[0, 1], [1, 1]]); // removes it from two cells
+console.log(validation.getValidation(2, 1));     // the rule of B3
 ```
 
 `getDocument()` and Excel files keep the rules: a file from Excel brings its data validation, and Excel opens ours.

@@ -149,7 +149,8 @@ class DropdownMenu extends BasePlugin {
       button.type = 'button';
       button.tabIndex = -1;
       button.className = BUTTON_CLASS_NAME;
-      (TH.firstElementChild || TH).appendChild(button);
+      // Into the header's label box, not into what other plugins put before it (a column outline's gutter).
+      (TH.querySelector(':scope > .relative') || TH).appendChild(button);
     }
     button.setAttribute('aria-label', this.phrase(C.COLUMN_MENU_BUTTON));
     button.setAttribute('aria-haspopup', 'true');
@@ -181,7 +182,11 @@ class DropdownMenu extends BasePlugin {
     }
   };
 
-  /** The items for the open column, as keys and custom items. */
+  /**
+   * The items for the open column, as keys and custom items.
+   *
+   * @private
+   */
   items(): (string | DropdownMenuItem)[] {
     const setting = this.hot.getSettings().dropdownMenu as DropdownMenuSettings;
     let items: (string | DropdownMenuItem)[] = DEFAULT_ITEMS;
@@ -281,7 +286,11 @@ class DropdownMenu extends BasePlugin {
     }
   }
 
-  /** Below the column's header, inside the window. */
+  /**
+   * Below the column's header, inside the window.
+   *
+   * @private
+   */
   position(): void {
     const menu = this.element!;
     const button = this.hot.view.wt.wtTable.getColumnHeader(this.column!) as HTMLElement | null;
@@ -342,7 +351,11 @@ class DropdownMenu extends BasePlugin {
     menu.appendChild(button);
   }
 
-  /** A predefined action item. */
+  /**
+   * A predefined action item.
+   *
+   * @private
+   */
   action(key: string, column: number): { name: string; callback: () => void; disabled: boolean } | null {
     switch (key) {
       case 'sort_asc':
@@ -426,14 +439,22 @@ class DropdownMenu extends BasePlugin {
     this.updateConditionInputs();
   }
 
-  /** A condition's name in the menu. */
+  /**
+   * A condition's name in the menu.
+   *
+   * @private
+   */
   conditionTitle(name: string): string {
     const { title, phrase } = CONDITIONS[name];
 
     return title || (phrase ? this.phrase(phrase) : name);
   }
 
-  /** Shows the inputs a condition needs, and the second condition once the first is chosen. */
+  /**
+   * Shows the inputs a condition needs, and the second condition once the first is chosen.
+   *
+   * @private
+   */
   updateConditionInputs(): void {
     const section = this.element?.querySelector('.fs-filter-by-condition');
 
@@ -528,7 +549,11 @@ class DropdownMenu extends BasePlugin {
     menu.appendChild(actions);
   }
 
-  /** Sets the column's conditions from the menu, filters and closes the menu. */
+  /**
+   * Sets the column's conditions from the menu, filters and closes the menu.
+   *
+   * @private
+   */
   apply(): void {
     const filters = this.filters;
     const menu = this.element;

@@ -1,15 +1,11 @@
 <script setup>
-// A searchable, alphabetical list of API entries in the right-hand column (on narrow screens, at the end of the page):
+// A searchable, alphabetical list of API entries in the right-hand column (narrow screens get ApiBlock.vue instead):
 // - on guide pages, "Related API": every method, event and setting of the topics in the frontmatter
 //   (`api: [Data, Hooks API]`);
 // - on the reference pages, the index of the page (`apiIndex: setting`, written by api/generate.mjs).
 import { computed, ref } from 'vue';
 import { useData, withBase } from 'vitepress';
 import { data } from '../../api/related.data.mjs';
-
-const props = defineProps({
-  place: { type: String, default: 'aside' }, // 'aside' or 'bottom'
-});
 
 const KINDS = [['setting', 'Settings'], ['method', 'Methods'], ['event', 'Events'], ['plugin-method', 'Plugin methods']];
 const { frontmatter } = useData();
@@ -18,8 +14,7 @@ const query = ref('');
 const index = computed(() => frontmatter.value.apiIndex);
 const topics = computed(() => (frontmatter.value.api || []).filter(name => data.topics.includes(name)));
 const title = computed(() => (index.value ? `All ${KINDS.find(([kind]) => kind === index.value)?.[1].toLowerCase()}` : 'Related API'));
-// The reference pages are the list themselves on narrow screens: their index is shown in the right-hand column only.
-const shown = computed(() => (index.value ? props.place === 'aside' : topics.value.length > 0));
+const shown = computed(() => !!index.value || topics.value.length > 0);
 
 // Plugin methods are listed under their plugin, without its name.
 const label = entry => `${entry.kind === 'plugin-method' ? entry.name.split('.')[1] : entry.name}${entry.kind.endsWith('method') ? '()' : ''}`;
@@ -47,7 +42,7 @@ const total = computed(() => groups.value.reduce((sum, group) => sum + group.ite
 </script>
 
 <template>
-  <nav v-if="shown" class="related-api" :class="`related-api--${place}`" :aria-label="title">
+  <nav v-if="shown" class="related-api related-api--aside" :aria-label="title">
     <div class="related-api__title">{{ title }}</div>
     <input v-model="query" class="related-api__search" type="search" placeholder="Filter…"
       :aria-label="`Filter ${title.toLowerCase()}`">
@@ -74,20 +69,6 @@ const total = computed(() => groups.value.reduce((sum, group) => sum + group.ite
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid var(--vp-c-divider);
-}
-
-.related-api--bottom {
-  margin: 32px 0;
-  padding: 16px;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-}
-
-/* VitePress shows the right-hand column from 1280px: the bottom copy is for narrower screens only. */
-@media (min-width: 1280px) {
-  .related-api--bottom {
-    display: none;
-  }
 }
 
 .related-api__title {

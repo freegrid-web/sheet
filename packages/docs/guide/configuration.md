@@ -6,9 +6,12 @@ api: [Lifecycle, Rows and columns, Rendering and scrolling]
 
 A grid is configured with one settings object, passed to the constructor:
 
-```js
-const grid = new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Ana', 'Oslo'], ['Ben', 'Riga'], ['Cleo', 'Rome']],
   colHeaders: true,
   rowHeaders: true,
   stretchH: 'all',
@@ -19,7 +22,15 @@ const grid = new FreeSheet(container, {
 
 `updateSettings` merges new settings into the current ones and re-renders:
 
-```js
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['Ana', 'Oslo'], ['Ben', 'Riga']],
+  colHeaders: true,
+});
+
 grid.updateSettings({ readOnly: true, colHeaders: ['Name', 'City'] });
 ```
 
@@ -31,9 +42,14 @@ Settings apply at three levels. The more specific level wins:
 2. **Column:** an entry in `columns`.
 3. **Cell:** an entry in `cell`, or the result of the `cells` function.
 
-```js
-new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['edit me', 'edit me too'], ['edit me', 'read only'], ['edit me', 'read only']],
+  colHeaders: true,
+  rowHeaders: true,
   readOnly: true,                       // every cell…
   columns: [
     { readOnly: false },                // …except the first column…
@@ -75,6 +91,7 @@ hot.setCellMeta(0, 1, 'numericFormat', { ...hot.getCellMeta(0, 1).numericFormat,
 | `stretchH` | `'none'`, `'last'` or `'all'`: how columns fill the width |
 | `readOnly` | Disable editing |
 | `minSpareRows`, `minSpareCols` | Keep empty rows/columns at the end for new input |
+| `fillContainer` | Empty cells fill the grid's element to its edges and grow as it scrolls, as in a spreadsheet; the empty end is not saved |
 | `fixedRowsTop`, `fixedRowsBottom`, `fixedColumnsLeft` | Freeze rows and columns |
 | `contextMenu` | `true` or a list of menu items |
 | `columnSorting` | Enable sorting by clicking headers |

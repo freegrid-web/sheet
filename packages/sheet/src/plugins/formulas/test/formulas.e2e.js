@@ -162,6 +162,17 @@ describe('Formulas', () => {
       expect(hot.getSheet('summary').getDataAtCell(0, 0)).toBe(30);
     });
 
+    it('creates a sheet with spare rows in a document with formulas', () => {
+      const hot = grid([[10], [20]], {
+        sheetName: 'Sales',
+        sheets: [{ id: 'summary', name: 'Summary', data: [['=SUM(Sales!A1:A2)']], minSpareRows: 2 }],
+      });
+      const summary = hot.getSheet('summary');
+
+      expect(summary.getDataAtCell(0, 0)).toBe(30);
+      expect(summary.countRows()).toBe(3);
+    });
+
     it('follows a renamed sheet in the formulas of the other sheets', () => {
       const hot = grid([['=Costs!A1+1']]);
 

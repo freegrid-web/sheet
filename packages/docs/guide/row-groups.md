@@ -8,10 +8,26 @@ Row groups are a spreadsheet's outline, like Excel's **Data ▸ Group**. Group a
 groups, and collapse a group to hide its rows. The data stays flat. For data that is a tree, with parent rows that
 hold their children, see [nested rows](./nested-rows).
 
-```js
-const grid = new FreeSheet(container, { data, rowHeaders: true, colHeaders: true, contextMenu: true, rowGroups: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-grid.getPlugin('rowGroups').groupRows(1, 4); // rows 2 to 5
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [
+    ['Costs', 'Q1', 'Q2'],
+    ['Rent', 1200, 1200],
+    ['Power', 300, 260],
+    ['Internet', 50, 50],
+    ['Office total', 1550, 1510],
+    ['Travel', 800, 450],
+  ],
+  rowHeaders: true,
+  colHeaders: true,
+  contextMenu: true,
+  rowGroups: true,
+});
+
+grid.getPlugin('rowGroups').groupRows(1, 3); // rows 2 to 4
 ```
 
 ## Using groups
@@ -51,17 +67,26 @@ See the [example](../examples/row-groups).
 - **Context menu:** **Group columns** and **Ungroup columns**.
 - **Hiding:** a collapsed group hides its columns.
 
-```js
-const grid = new FreeSheet(container, { data, colHeaders: true, contextMenu: true, columnOutline: true });
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: [['North', 120, 135, 128, 383], ['South', 98, 101, 110, 309]],
+  colHeaders: ['Region', 'Jan', 'Feb', 'Mar', 'Q1'],
+  rowHeaders: true,
+  contextMenu: true,
+  columnOutline: true,
+});
 const columns = grid.getPlugin('columnOutline');
 
-columns.groupColumns(1, 3);   // B to D
+columns.groupColumns(1, 3);      // B to D
 columns.collapseGroup(1);
-columns.showLevel(1);
-columns.getGroups();          // [{ from, to, level, collapsed }], columns of the data
+console.log(columns.getGroups()); // [{ from, to, level, collapsed }], columns of the data
+// columns.expandGroup(1), columns.showLevel(1)
 ```
 
-This is not the same as [column groups](./column-groups): those are header groups, a title over several columns,
+This is not the same as [column header groups](./column-groups): those are a title over several columns,
 made with `columns`. The outline groups any columns and hides them, as Excel's **Group** does.
 
 Rows and columns can have an outline at the same time.

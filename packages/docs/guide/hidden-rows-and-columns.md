@@ -7,9 +7,12 @@ api: [Rows and columns]
 Hide rows or columns from the context menu or the API, as in Excel. Turn hiding on with `hiddenRows` and
 `hiddenColumns`; an object can also list what is hidden at start (physical indexes, that is, positions in the data):
 
-```js
-new FreeSheet(container, {
-  data,
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
+
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(6, 4),
   rowHeaders: true,
   colHeaders: true,
   contextMenu: true,
@@ -19,7 +22,7 @@ new FreeSheet(container, {
 ```
 
 A column can also say it itself: `{ data: 'notes', title: 'Notes', hidden: true }` in `columns` starts hidden (no
-`hiddenColumns` setting needed). See [Column groups](./column-groups).
+`hiddenColumns` setting needed). See [Column header groups](./column-groups).
 
 ## What a hidden row is
 
@@ -39,16 +42,25 @@ removing rows moves the hidden ones with their data. Formulas still calculate hi
   becomes a button, and its tooltip lists what is hidden: "Show rows: 2–3").
 - **API**: hiding takes visual indexes; a hidden row has no visual index, so showing takes physical ones.
 
-```js
-const rows = hot.getPlugin('hiddenRows');
+```js live
+import FreeSheet from '@freegrid/sheet';
+import '@freegrid/sheet/dist/freesheet.full.css';
 
-rows.hideRows([1, 2]);                 // visual rows
-rows.getHiddenRows();                  // physical rows, e.g. [1, 2]
-rows.showRows([2]);                    // physical rows
-rows.showAllRows();
-rows.isHidden(1);                      // physical row
+const grid = new FreeSheet(document.getElementById('grid'), {
+  data: FreeSheet.helper.createSpreadsheetData(6, 4),
+  rowHeaders: true,
+  colHeaders: true,
+  hiddenRows: true,
+  hiddenColumns: true,
+});
+const rows = grid.getPlugin('hiddenRows');
 
-hot.getPlugin('hiddenColumns').hideColumns([0]);
+rows.hideRows([1, 2]);              // visual rows
+console.log(rows.getHiddenRows()); // physical rows: [1, 2]
+rows.showRows([2]);                 // physical rows
+console.log(rows.isHidden(1));     // true (a physical row)
+grid.getPlugin('hiddenColumns').hideColumns([0]);
+// rows.showAllRows() shows them all.
 ```
 
 Hiding and showing can be undone. The events `beforeHideRows` (return `false` to cancel), `afterHideRows`,

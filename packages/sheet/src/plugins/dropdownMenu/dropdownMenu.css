@@ -5,7 +5,8 @@
 
 .freesheet thead th .fs-dropdown-button {
   position: absolute;
-  top: 50%;
+  /* The middle of the label: under a column outline's gutter when the header has one. */
+  top: calc(50% + var(--fs-column-outline-gutter, 0px) / 2);
   right: 2px;
   width: 16px;
   height: 16px;

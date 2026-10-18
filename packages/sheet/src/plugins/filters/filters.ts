@@ -125,7 +125,11 @@ class Filters extends BasePlugin {
     super.updatePlugin();
   }
 
-  /** Takes the conditions of the setting. */
+  /**
+   * Takes the conditions of the setting.
+   *
+   * @private
+   */
   applySettings(): void {
     const { conditions } = this.settings;
 
@@ -196,6 +200,8 @@ class Filters extends BasePlugin {
    * How a column's conditions are joined.
    *
    * @param column Visual column index.
+   *
+   * @private
    */
   getOperation(column: number): ColumnConditions['operation'] {
     return this.#columns.get(this.hot.toPhysicalColumn(column))?.operation || 'conjunction';
@@ -247,7 +253,11 @@ class Filters extends BasePlugin {
     this.refresh();
   }
 
-  /** Whether a column has conditions. */
+  /**
+   * Whether a column has conditions.
+   *
+   * @private
+   */
   hasConditions(column: number): boolean {
     return this.#columns.has(this.hot.toPhysicalColumn(column));
   }
@@ -280,7 +290,11 @@ class Filters extends BasePlugin {
     });
   }
 
-  /** The physical rows that do not meet the conditions. */
+  /**
+   * The physical rows that do not meet the conditions.
+   *
+   * @private
+   */
   rowsToHide(): number[] {
     const matching = this.matchingRows();
     const hidden: number[] = [];
@@ -298,6 +312,8 @@ class Filters extends BasePlugin {
    * Whether each physical row meets the conditions of every column (but `exceptColumn`).
    *
    * @param exceptColumn A physical column to leave out.
+   *
+   * @private
    */
   matchingRows(exceptColumn?: number): boolean[] {
     const entries = Array.from(this.#columns).filter(([column]) => column !== exceptColumn);
@@ -323,7 +339,11 @@ class Filters extends BasePlugin {
     return matching;
   }
 
-  /** The cell type and date format of a physical column. */
+  /**
+   * The cell type and date format of a physical column.
+   *
+   * @private
+   */
   columnContext(physicalColumn: number): ConditionContext {
     const meta = this.hot.getColumnMeta(this.hot.toVisualColumn(physicalColumn) ?? physicalColumn) as
       ConditionContext;
@@ -336,6 +356,8 @@ class Filters extends BasePlugin {
    *
    * @param physicalColumns Physical column indexes.
    * @param callback Called with each physical row and its values.
+   *
+   * @private
    */
   readColumns(physicalColumns: number[], callback: (row: number, values: unknown[]) => void): void {
     const translator = getTranslator(this.hot);
@@ -377,7 +399,11 @@ class Filters extends BasePlugin {
     TH.classList.toggle(FILTERED_COLUMN_CLASS_NAME, column >= 0 && this.hasConditions(column));
   }
 
-  /** Redraws, keeping the selection on visible cells. */
+  /**
+   * Redraws, keeping the selection on visible cells.
+   *
+   * @private
+   */
   refresh(): void {
     const selected = this.hot.getSelectedLast();
     const count = this.hot.countRows();
