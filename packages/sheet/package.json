@@ -1,6 +1,6 @@
 {
   "name": "@freegrid/sheet",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Free, MIT-licensed, spreadsheet-like data grid for the web.",
   "license": "MIT",
   "keywords": [
