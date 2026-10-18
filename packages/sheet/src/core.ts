@@ -316,6 +316,9 @@ class Core {
 
     this.#recordTranslator = getTranslator(this);
     this.#initVisibility();
+    this.addHook('afterRender', () => {
+      this.#fillContainer();
+    });
 
     this.#dataSource = new DataSource(this);
 
@@ -3613,6 +3616,46 @@ class Core {
       columns.onRemove(physicalColumns));
   }
 
+
+  /** Whether `#fillContainer` is adding rows and columns (its render must not start it again). */
+  #filling = false;
+
+  /**
+   * `fillContainer`: after a render, adds the empty rows and columns that the grid's view has room for (as `minRows`
+   * and `minCols` do), so the element shows cells to its edges. Columns are added only to array data without
+   * `columns`.
+   */
+  #fillContainer(): void {
+    const settings = this.#priv.settings;
+    const wtTable = this.view?.wt?.wtTable;
+
+    if (!settings.fillContainer || this.#filling || !wtTable) {
+      return;
+    }
+    const holder = wtTable.holder as HTMLElement;
+    const hider = wtTable.hider as HTMLElement;
+    const rows = Math.min(Math.ceil((holder.clientHeight - hider.offsetHeight) / getRowHeight(this.rootElement)),
+      settings.maxRows - this.countSourceRows());
+    const canAddColumns = !settings.columns && this.dataType === 'array';
+    const columns = canAddColumns ? Math.min(Math.ceil((holder.clientWidth - hider.offsetWidth) /
+      (this.view.wt.getSetting('defaultColumnWidth') as number || 50)), settings.maxCols - this.countCols()) : 0;
+
+    if (rows <= 0 && columns <= 0) {
+      return;
+    }
+    this.#filling = true;
+    try {
+      if (rows > 0) {
+        this.#datamap.createRow(this.countSourceRows(), rows, 'auto');
+      }
+      if (columns > 0) {
+        this.#datamap.createCol(this.#countAllCols(), columns, 'auto');
+      }
+      this.render();
+    } finally {
+      this.#filling = false;
+    }
+  }
 
   /**
    * Returns the total number of visible columns in the table.

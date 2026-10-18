@@ -91,6 +91,7 @@ hot.setCellMeta(0, 1, 'numericFormat', { ...hot.getCellMeta(0, 1).numericFormat,
 | `stretchH` | `'none'`, `'last'` or `'all'`: how columns fill the width |
 | `readOnly` | Disable editing |
 | `minSpareRows`, `minSpareCols` | Keep empty rows/columns at the end for new input |
+| `fillContainer` | Empty cells fill the grid's element to its edges, as in a spreadsheet |
 | `fixedRowsTop`, `fixedRowsBottom`, `fixedColumnsLeft` | Freeze rows and columns |
 | `contextMenu` | `true` or a list of menu items |
 | `columnSorting` | Enable sorting by clicking headers |

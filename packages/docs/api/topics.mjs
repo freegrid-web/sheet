@@ -78,7 +78,7 @@ export const TOPICS = [
     events: ['beforeStretchingColumnWidth', 'afterGetColumnHeaderRenderers', 'afterGetRowHeaderRenderers',
       'beforeHideRows', 'afterHideRows', 'beforeUnhideRows', 'afterUnhideRows', 'beforeHideColumns',
       'afterHideColumns', 'beforeUnhideColumns', 'afterUnhideColumns', 'hiddenRow', 'hiddenColumn'],
-    settings: ['rowHeaders', 'colHeaders', 'colWidths', 'rowHeights', 'stretchH', 'allowInsertRow',
+    settings: ['rowHeaders', 'colHeaders', 'colWidths', 'rowHeights', 'stretchH', 'fillContainer', 'allowInsertRow',
       'allowInsertColumn', 'allowRemoveRow', 'allowRemoveColumn', 'fixedRowsTop', 'fixedRowsBottom',
       'fixedColumnsLeft', 'rowHeaderWidth', 'columnHeaderHeight', 'bindRowsWithHeaders', 'title', 'hiddenRows',
       'hiddenColumns'],

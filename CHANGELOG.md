@@ -4,6 +4,8 @@
 
 ### Added
 
+- `fillContainer: true`: empty rows and columns fill the grid's element to its edges, as in a spreadsheet, and more
+  are added when the element grows.
 - Formatting bar: strikethrough is one of the default buttons; the borders list shows an icon for each kind, and the
   borders button shows the kind it draws (the last one chosen).
 - Excel (.xlsx) and CSV files, read and written by FreeSheet itself (no dependency): `exportFile(format, options)`

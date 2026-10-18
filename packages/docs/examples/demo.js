@@ -37,8 +37,7 @@ const COMMON = {
   findAndReplace: true,
   changeHistory: { user: 'You' },
   // Empty cells fill the window, as in a spreadsheet.
-  minRows: 60,
-  minCols: 26,
+  fillContainer: true,
 };
 
 const header = { fontWeight: 'bold', background: '#d9e1f2', color: '#1f2937', borderBottom: '1px solid #8ea9db' };

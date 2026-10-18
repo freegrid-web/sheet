@@ -1545,6 +1545,8 @@ declare namespace FreeSheet {
     editor?: string | (() => void) | boolean;
     enterBeginsEditing?: boolean;
     enterMoves?: object | (() => void);
+    /** Empty rows and columns fill the grid's element. */
+    fillContainer?: boolean;
     fillHandle?: boolean | string | object;
     filter?: boolean;
     filteringCaseSensitive?: boolean;
