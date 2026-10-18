@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.8.0 (2026-10-18)
+
+FreeSheet works with spreadsheet files and formats cells as a spreadsheet does: Excel (.xlsx) and CSV files read and
+written without a dependency, a formatting bar (fonts, colors, borders, number formats, the format painter), row and
+column outlines, data validation, hyperlinks, find and replace, a status bar, change history, Paste Special and
+series in the fill handle. `fillContainer` fills the grid's element with empty cells, as in a spreadsheet. The docs
+are rebuilt by topic, with live examples you can copy or open in a playground, real-world examples and a full demo.
+
 ### Added
 
 - `fillContainer: true`: empty rows and columns fill the grid's element to its edges, as in a spreadsheet; more are
