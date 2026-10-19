@@ -207,17 +207,20 @@ export class GridEngine implements RenderCommands {
   beginEdit(initial?: string): void {
     if (this.destroyed || this.editor) return;
     const address = this.source.getSelection();
-    if (!address || !this.valid(address)) return;
+    if (!address || !this.valid(address) || this.source.canEdit?.(address) === false) return;
     this.scrollViewport(address);
     const element = this.element.ownerDocument.createElement('textarea');
     element.className = 'engine-editor'; element.setAttribute('aria-label', 'Cell editor');
     element.style.cssText = 'position:absolute;box-sizing:border-box;resize:none;margin:0;border:2px solid #2563eb;' +
       'font:13px sans-serif;padding:4px;background:white;color:#18202d;';
     element.value = initial ?? this.source.readCell(address);
-    this.editor = { element, address: { ...address }, composing: false };
-    element.addEventListener('compositionstart', () => { if (this.editor) this.editor.composing = true; });
+    const editor = { element, address: { ...address }, composing: false };
+    this.editor = editor;
+    element.addEventListener('compositionstart', () => {
+      if (this.editor === editor) editor.composing = true;
+    });
     element.addEventListener('compositionend', () => {
-      if (this.editor) { this.editor.composing = false; this.positionEditor(); }
+      if (this.editor === editor) { editor.composing = false; this.positionEditor(); }
     });
     this.surface.append(element); this.positionEditor(); element.focus();
     if (initial === undefined) element.select();
@@ -234,6 +237,12 @@ export class GridEngine implements RenderCommands {
     }
     Object.assign(this.editor.element.style, { left: `${rect.x}px`, top: `${rect.y}px`,
       width: `${rect.width}px`, height: `${rect.height}px` });
+  }
+
+  /** Explicit source/context invalidation may abort composition; normal user commit/cancel still guards IME. */
+  cancelEdit(): boolean {
+    if (!this.editor) return false;
+    this.editor.composing = false; this.finishEdit(false); return true;
   }
 
   finishEdit(commit: boolean): void {

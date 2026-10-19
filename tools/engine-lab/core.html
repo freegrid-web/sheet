@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Engine / Core bridge experiment</title>
+<link rel="stylesheet" href="/vendor/freesheet.css">
+<style>body{font:14px sans-serif;margin:20px;background:#f5f7fa}#mirror{width:1000px;height:600px;background:white;border:1px solid #aaa}#original{width:1000px;height:260px;margin-top:12px}nav{margin:12px 0}button,select{margin-right:10px}</style>
+<h1>Engine / Core diagnostic mirror</h1><p>Both views share one Core. The original DOM renderer remains active. This is not a backend replacement.</p>
+<nav><select id="painter"><option>canvas</option><option>dom</option></select><button id="sort">Sort</button><button id="undo">Undo</button><button id="redo">Redo</button><button id="load">Replace source</button><span id="status"></span></nav>
+<div id="mirror"></div><p>Original Core view:</p><div id="original"></div>
+<script src="/vendor/freesheet.js"></script><script type="module" src="/core-app.mjs"></script></html>

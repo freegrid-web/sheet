@@ -218,3 +218,33 @@ It checks identical complete scenes, five fresh-page measured trials after warm-
 and separate trusted-key handler work. Presentation latency and actual screen-reader/IME testing remain
 open gates. Measurements and validation are recorded in the lab observations; step 1 is not release-ready
 merely because its synchronous work is small. No integration or main-targeted PR is authorized by this checkpoint.
+
+## Live Core mirror checkpoint
+
+`CoreEngineBridge` connects the engine to a live Core in `tools/engine-lab/core.html`. The existing DOM backend
+remains mounted and active; this is an integration diagnostic, not renderer selection or a headless Core.
+A narrow type-only Core port delegates source reads/writes and selection to existing methods. Raw values use
+the existing string helper. Text edit eligibility respects readOnly/editor metadata; formatted/custom rendering
+and production editor behavior are not inferred from this path.
+
+The bridge observes data/order/visibility/structure/metadata/settings hooks and full renders. It updates a
+selection border without repainting on selection-only notification, and rebuilds the bounded mirror when
+counts change. Mirror input relinquishes Core's document keyboard listener and reclaims focus after Core
+prepares its legacy editor. Both views are live, so this diagnostic adds visible reads and rendering work;
+its measurements are not evidence for replacing the production backend.
+
+An uncommitted editor is cancelled before order/source/structure changes, with an explicit callback. This
+avoids treating a visual index as record identity. Source replacement can explicitly abort composition;
+ordinary user commit/cancel still retains the composition guard. Core alone handles accepted writes,
+validation, change hooks and history. Completion notifications from an earlier asynchronous validation must
+not cancel a later editor or discard its draft. Focus and delayed-validation checks exposed both issues
+during adapter development and remain browser contracts.
+
+This does not establish stable record keys or pending-write identity across source replacement/reordering.
+Already-dispatched asynchronous writes follow Core's existing behavior. Framework hosts and a production
+adapter must prove those lifetimes before claiming compatibility. Private command/port tests and live-mirror
+scenarios do not certify any plugin on a replacement backend. Keep the full compatibility tracker open.
+
+The lab README defines the contract and benchmark boundary for generated versus live Core sources. Raw
+before/after regression controls and integrated-mirror measurements use `tools/performance/engine.mjs`;
+tracked observations record their results. No main merge, public option or new PR is introduced here.

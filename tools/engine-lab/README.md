@@ -60,3 +60,48 @@ only establishes a TypeScript boundary; it does not prove production scroll sema
 The earlier `tools/hybrid-grid/` lab still holds the separate Vue/frozen/variable-size experiment. Those
 features have not yet been ported to this engine. Keep that lab available until matching contracts are tested.
 Integration, presentation traces, real IME/accessibility tests and framework hosts remain later checkpoints.
+
+## Live Core adapter checkpoint
+
+Open [the Core mirror](http://localhost:4184/core.html) after `pnpm build` and the lab build. It creates one
+real Core with its existing DOM renderer, then connects a separate Canvas/DOM mirror through
+`CoreEngineBridge`. Both views use the same source and selection. This is a diagnostic integration, not a
+headless Core mode, replacement backend, public option or full plugin-compatibility claim.
+
+The adapter calls `getDataAtCell`, `getSelectedRangeLast`, `selectCell` and `setDataAtCell`; it does not allocate
+another row permutation or edit store. Core translates visual coordinates and owns change hooks, validators,
+undo and redo. Plain display uses the shared string conversion helper, not renderer output or formatted text.
+Native editing is limited to editable text cells (`readOnly`, `editor: false` and non-text types are checked).
+Mirror input releases Core's document keyboard listener and restores mirror focus after Core prepares its
+legacy editor. Shortcut/range/editor parity is not established.
+
+Hooks refresh the mirror after data, order, visibility, metadata and settings changes. A full Core render also
+refreshes it, preserving explicit `source mutation + render` behavior. Selection-only notifications update the
+border. Dimension changes rebuild the small mirror and clamp its previous logical scroll position. This is
+not variable-size or structural anchor preservation. The original DOM renderer still works and costs CPU;
+visible value reads can invoke read hooks again. Never compare its combined work to a standalone backend as
+a production speed-up.
+
+Before source replacement, reordering and structural mutation, an uncommitted native draft is explicitly
+cancelled, including composition, with a cancellation callback shown in the lab. Source/selection changes can
+also cancel drafts. Conservative cancellation may occur even if a later Core hook cancels the requested
+operation. A completed earlier validation or redraw does not cancel a newly opened editor. Already-dispatched
+asynchronous writes still belong to Core: identity across reordering/replacement while validation is pending
+is not certified. Stable framework-host identities and state lifetime remain separate work.
+
+```sh
+tools/in-playwright-docker.sh node tools/engine-lab/verify-core.mjs
+tools/in-playwright-docker.sh node tools/engine-lab/verify-core.mjs --browser firefox
+tools/in-playwright-docker.sh node tools/engine-lab/verify-core.mjs --browser webkit
+tools/in-playwright-docker.sh node tools/performance/engine.mjs --source core \
+  --output tools/performance/results/core-bridge-live.json
+```
+
+The Core benchmark uses real 100/10k/100k × 20 arrays (maximum two million cells), with source construction
+and original Core attachment outside the mirror attachment timer. It alternates painters and checks identical
+scenes. Key timings include the Core selection and keyboard-ownership work, starting at document capture;
+standalone timings start at the engine listener. These are different contracts, not a before/after ratio.
+Both exclude presentation. Core integration checks cover trusted editing, async validation, hooks, readOnly,
+undo/redo, sort, row/column movement, insert/remove, object-property data, source replacement and cleanup.
+They test specific scenarios while Core still has its old renderer; they do not certify those plugins on a
+replacement backend.

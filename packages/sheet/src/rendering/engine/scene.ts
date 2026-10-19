@@ -7,6 +7,7 @@ export interface SceneCell extends CellAddress, CellRect { text: string }
 /** Values and selection belong to the caller. No second spreadsheet data model lives in the engine. */
 export interface EngineSource {
   readCell(address: CellAddress): string;
+  canEdit?(address: CellAddress): boolean;
   writeCell(address: CellAddress, value: string): void;
   getSelection(): CellAddress | null;
   select(address: CellAddress): void;

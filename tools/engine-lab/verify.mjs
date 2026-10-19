@@ -13,6 +13,9 @@ const snapshot = page => page.evaluate(() => window.engineLab.snapshot());
 let checks = 0;
 function done(name) { checks++; console.log(`PASS ${name}`); }
 try {
+  assert.equal((await fetch(`${server.url}/missing-module.mjs`)).status, 404);
+  assert.equal((await fetch(`${server.url}/results/hidden.mjs`)).status, 403);
+  done('lab server returns missing-file and blocked-result responses without crashing');
   for (const painter of ['canvas', 'dom']) {
     const page = await browser.newPage({ viewport: { width: 1400, height: 1000 }, deviceScaleFactor: 2 });
     page.on('pageerror', error => errors.push(error.message));
@@ -38,6 +41,27 @@ try {
     await page.keyboard.press('F2'); await page.locator('textarea').fill('cancelled'); await page.keyboard.press('Escape');
     assert.equal((await snapshot(page)).scene.cells.find(c => c.row === 2 && c.col === 2).text, 'saved');
     done(`${painter}: native editor commit, cancel and visible data invalidation`);
+    await page.evaluate(() => { window.engineLab.source.canEdit = () => false; });
+    await page.keyboard.press('F2'); assert.equal(await page.locator('textarea').count(), 0);
+    await page.evaluate(() => { delete window.engineLab.source.canEdit; });
+    await page.keyboard.press('F2'); await page.locator('textarea').fill('abort without writing');
+    await page.locator('textarea').evaluate(editor => {
+      window.abortedEditor = editor; editor.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    });
+    assert.equal(await page.evaluate(() => window.engineLab.engine.cancelEdit()), true);
+    assert.equal(await page.locator('textarea').count(), 0);
+    assert.equal(await page.evaluate(() => window.engineLab.engine.cancelEdit()), false);
+    await page.keyboard.press('F2'); await page.locator('textarea').fill('new composing draft');
+    await page.locator('textarea').evaluate(editor => {
+      editor.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+      window.abortedEditor.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+      window.abortedEditor = null;
+    });
+    await page.keyboard.press('Enter'); assert.equal(await page.locator('textarea').count(), 1);
+    await page.locator('textarea').evaluate(editor => editor.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })));
+    await page.keyboard.press('Escape');
+    assert.equal((await snapshot(page)).scene.cells.find(c => c.row === 2 && c.col === 2).text, 'saved');
+    done(`${painter}: source edit eligibility and explicit context abort without a write`);
     await page.keyboard.press('x'); assert.equal(await page.locator('textarea').inputValue(), 'x');
     await page.locator('textarea').evaluate(editor => editor.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })));
     await page.keyboard.press('Enter'); assert.equal(await page.locator('textarea').count(), 1);

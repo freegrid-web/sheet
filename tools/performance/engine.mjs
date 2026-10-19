@@ -9,22 +9,25 @@ import { fileURLToPath } from 'node:url';
 import { startServer, root } from '../engine-lab/serve.mjs';
 const { values } = parseArgs({ options: {
   trials: { type: 'string', default: '5' }, warmup: { type: 'string', default: '1' },
-  frames: { type: 'string', default: '30' },
+  frames: { type: 'string', default: '30' }, source: { type: 'string', default: 'generated' },
   output: { type: 'string', default: fileURLToPath(new URL('./results/engine.json', import.meta.url)) },
 } });
 for (const key of ['trials', 'warmup', 'frames']) {
   if (!/^\d+$/.test(values[key]) || Number(values[key]) < (key === 'warmup' ? 0 : 1)) throw new Error(`Invalid ${key}`);
 }
+if (!['generated', 'core'].includes(values.source)) throw new Error('Invalid source');
 const playwright = createRequire(new URL('../../packages/sheet/package.json', import.meta.url))('playwright');
 const server = await startServer();
 const browser = await playwright.chromium.launch();
 const hash = text => createHash('sha256').update(text).digest('hex');
 const sources = {};
-for (const file of ['dist/engine.mjs', 'app.mjs', 'index.html']) sources[file] = hash(await readFile(root + file));
+for (const file of values.source === 'core' ? ['dist/coreBridge.mjs', 'core-app.mjs', 'core.html'] : ['dist/engine.mjs', 'app.mjs', 'index.html']) sources[file] = hash(await readFile(root + file));
+if (values.source === 'core') sources.production = hash(await readFile(new URL('../../packages/sheet/dist/freesheet.full.min.js', import.meta.url)));
 const report = { complete: false, cpu: cpus()[0].model, node: process.version, browser: browser.version(),
   viewport: { width: 1400, height: 1000 }, dpr: 1, sources, config: values,
   definition: 'Canvas and minimal DOM painters in the same private TS engine. Fixed 28x130 cells, 64x30 headers, no frozen/rich cells. Generated values, sparse edits, external selection. Not production compatibility or a before/after production speed-up. Input timings bracket the synchronous engine keydown listener with trusted Playwright events; exclude presentation. CDP counters cover the whole scripted scroll sequence and overlap.', results: [] };
-const cases = { small: [100, 20], tall10k: [10000, 20], tall100k: [100000, 20], tall1m: [1000000, 20], wide: [100, 5000] };
+if (values.source === 'core') report.definition = 'Live Core array-data mirror; production DOM backend remains active. Both painters share real Core methods and hooks. Initial Core/source construction excluded from attach timer. Keydown bracket starts at document capture and ends after engine handling, including Core selection and keyboard transfer. Not a replacement or input-to-presentation latency. CDP counters cover the whole scroll sequence and overlap.';
+const cases = values.source === 'core' ? { small: [100, 20], tall10k: [10000, 20], tall100k: [100000, 20] } : { small: [100, 20], tall10k: [10000, 20], tall100k: [100000, 20], tall1m: [1000000, 20], wide: [100, 5000] };
 const settle = page => page.evaluate(async () => { for (let n = 0; n < 4; n++) await new Promise(requestAnimationFrame); });
 const percentile = (items, p) => [...items].sort((a, b) => a - b)[Math.max(0, Math.ceil(items.length * p) - 1)];
 const signatures = new Map();
@@ -35,7 +38,16 @@ try {
       for (const painter of trial % 2 === 0 ? ['canvas', 'dom'] : ['dom', 'canvas']) {
         const page = await browser.newPage({ viewport: report.viewport, deviceScaleFactor: 1 });
         const errors = []; page.on('pageerror', error => errors.push(error.message));
-        await page.goto(`${server.url}/?${new URLSearchParams({ rows, columns, painter })}`); await settle(page);
+        await page.goto(`${server.url}/${values.source === 'core' ? 'core.html' : ''}?${new URLSearchParams({ rows, columns, painter })}`); await settle(page);
+        if (values.source === 'core') await page.evaluate(() => {
+          const lab = window.coreLab; let reads = 0;
+          const readCell = lab.bridge.source.readCell;
+          lab.bridge.source.readCell = address => { reads++; return readCell(address); };
+          window.engineLab = { engine: lab.bridge.engine, source: lab.bridge.source, snapshot: () => ({
+            scene: lab.bridge.engine.getScene(), reads, attachMs: lab.attachMs,
+            metrics: lab.bridge.engine.metrics, nodes: document.querySelector('#mirror').querySelectorAll('*').length,
+          }) };
+        });
         const client = await page.context().newCDPSession(page); await client.send('Performance.enable');
         const metrics = async () => Object.fromEntries((await client.send('Performance.getMetrics')).metrics.map(m => [m.name, m.value]));
         await page.evaluate(() => {
@@ -59,18 +71,20 @@ try {
         const signature = hash(JSON.stringify(state.scene));
         if (signatures.has(name)) assert.equal(signature, signatures.get(name), `Scene differs for ${name}`);
         signatures.set(name, signature);
-        await page.evaluate(() => {
+        await page.evaluate(source => {
           const lab = window.engineLab;
           lab.engine.scroll(0, 0); lab.source.select({ row: 2, col: 2 }); lab.engine.draw(false);
           const root = lab.engine.element; let start;
           window.engineInputSamples = [];
-          root.addEventListener('keydown', event => { if (event.isTrusted) start = performance.now(); }, true);
+          (source === 'core' ? document : root).addEventListener('keydown', event => {
+            if (event.isTrusted) start = performance.now();
+          }, true);
           // Registered after the engine's bubbling listener, so this observes its synchronous completion.
           root.addEventListener('keydown', event => {
             if (event.isTrusted) window.engineInputSamples.push({ key: event.key, ms: performance.now() - start });
           });
           root.focus();
-        });
+        }, values.source);
         const selectionBefore = await page.evaluate(() => ({ reads: window.engineLab.snapshot().reads, paints: window.engineLab.engine.metrics.paints }));
         for (let i = 0; i < 20; i++) { await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowUp'); }
         const selectionAfter = await page.evaluate(() => ({ reads: window.engineLab.snapshot().reads, paints: window.engineLab.engine.metrics.paints }));

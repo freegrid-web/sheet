@@ -210,3 +210,18 @@ persistentStateReset persistentStateSave unmodifyCol unmodifyRow
 
 This step is architectural preparation, not a rendering speed fix. Before/after performance numbers are
 regression controls. No production speed-up or Canvas compatibility is claimed from this adapter.
+
+## Private live-Core mirror evidence
+
+`CoreEngineBridge` now reads/writes through the existing Core methods and observes selection/data/order/
+structure hooks in a separate development mirror. Specific scenarios cover native edit validation and change
+hooks, readOnly, undo/redo, visual-coordinate edits after sorting, row/column movement, insert/remove,
+object-property mapping, source replacement and teardown. Core still runs its original DOM backend, supplies
+real TDs, and dispatches production renderer hooks there. This is **not** new-backend certification for any
+plugin, event family or element API in this inventory.
+
+Before structural/order/source changes, uncommitted mirror drafts are explicitly cancelled; this does not
+create stable record IDs. Pending asynchronous writes across such changes, framework state, production
+editors/shortcuts and presentation/accessibility contracts remain unproven. The adapter's read and notification
+work is additional to the original renderer. Keep these results separate from production speed claims and
+from the eventual replacement-backend compatibility matrix.
