@@ -20,6 +20,8 @@ import { getRowHeight } from './helpers/dom/theme';
 import { handleMouseEvent } from './selection/mouseEventHandler';
 import type Core from './core';
 import type { GridSettings } from './types';
+import type { RenderQueries } from './rendering/renderQueries';
+import { WalkontableQueries } from './rendering/walkontableQueries';
 
 type Grid = Core;
 type Wt = Walkontable;
@@ -60,6 +62,7 @@ class TableView {
   TBODY: HTMLTableSectionElement;
   wt: Wt;
   activeWt: Wt;
+  readonly renderQueries: RenderQueries;
   #isMouseDown = false;
 
   /**
@@ -101,6 +104,7 @@ class TableView {
 
     this.wt = new Walkontable(walkontableConfig);
     this.activeWt = this.wt;
+    this.renderQueries = new WalkontableQueries(() => this.wt);
 
     this.#registerSpreaderEvents();
   }
@@ -585,13 +589,7 @@ class TableView {
    * @param {Boolean} topmost
    */
   getCellAtCoords(coords: CellCoords, topmost?: boolean): HTMLTableCellElement | null {
-    const td = this.wt.getCell(coords, topmost);
-
-    if ((td as number) < 0) { // there was an exit code (cell is out of bounds)
-      return null;
-    }
-
-    return td as HTMLTableCellElement;
+    return this.renderQueries.getCell(coords, topmost);
   }
 
   /**
