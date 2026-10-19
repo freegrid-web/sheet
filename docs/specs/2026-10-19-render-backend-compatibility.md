@@ -85,6 +85,73 @@ separate call-site review. Each row needs actual behavioral coverage before bein
 | TouchScroll | Not yet validated | `touchScroll/touchScroll.ts` |
 | UndoRedo | Not yet validated | `undoRedo/undoRedo.ts` |
 
+## Documented API names at the baseline
+
+Every name below is **not yet validated on the new backend**. The query boundary above is only an internal
+migration marker for the existing engine. These lists come from `buildReference()` at the stated baseline;
+refresh them deliberately when the public API changes. The runtime method-list spec also covers legacy/private
+methods that are not part of this documented reference.
+
+### Methods
+
+```text
+activateSheet addHook addHookOnce addSheet alter clear closePanel colOffset colToProp countCols
+countEmptyCols countEmptyRows countRenderedCols countRenderedRows countRows countSourceCols
+countSourceRows countVisibleCols countVisibleRows deselectCell destroy destroyEditor downloadFile
+emptySelectedCells exportFile getActiveEditor getActiveSheet getCell getCellEditor getCellMeta
+getCellMetaAtRow getCellRenderer getCellValidator getCellsMeta getColHeader getColWidth getColumnMeta
+getCoords getCopyableData getCopyableText getData getDataAtCell getDataAtCol getDataAtProp
+getDataAtRow getDataAtRowProp getDataType getDocument getInstance getOpenPanel getPlugin getRowHeader
+getRowHeight getSchema getSelected getSelectedLast getSelectedRange getSelectedRangeLast getSettings
+getSheet getSheetId getSheetName getSheets getSourceData getSourceDataArray getSourceDataAtCell
+getSourceDataAtCol getSourceDataAtRow getTranslatedPhrase getValue hasColHeaders hasHook
+hasRowHeaders importFile isColumnModificationAllowed isEmptyCol isEmptyRow isListening isLoading
+listen loadData loadDocument moveSheet openPanel populateFromArray propToCol removeCellMeta
+removeHook removeSheet renameSheet render rowOffset runHooks scrollViewportTo selectAll selectCell
+selectCellByProp selectCells selectColumns selectRows setCellMeta setCellMetaObject setCellStyle
+setDataAtCell setDataAtRowProp setLoading spliceCol spliceRow toPhysicalColumn toPhysicalRow
+toVisualColumn toVisualRow unlisten updateSettings validateCells validateColumns validateRows
+```
+
+### Events
+
+```text
+afterAddChild afterBeginEditing afterCellMetaReset afterChange afterChangeRecorded
+afterChangesObserved afterColumnCollapse afterColumnExpand afterColumnMove afterColumnResize
+afterColumnSort afterConditionalFormattingChange afterContextMenuDefaultOptions afterContextMenuHide
+afterContextMenuShow afterCopy afterCopyLimit afterCreateCol afterCreateRow afterCut afterDeselect
+afterDestroy afterDetachChild afterDocumentKeyDown afterDrawSelection afterDropdownMenuHide
+afterDropdownMenuShow afterExportFile afterFilter afterGetCellMeta afterGetColHeader
+afterGetColumnHeaderRenderers afterGetRowHeader afterGetRowHeaderRenderers afterHideColumns
+afterHideRows afterImportFile afterInit afterLanguageChange afterListen afterLoadData afterMergeCells
+afterModifyTransformEnd afterModifyTransformStart afterMomentumScroll afterOnCellContextMenu
+afterOnCellCornerDblClick afterOnCellCornerMouseDown afterOnCellMouseDown afterOnCellMouseOut
+afterOnCellMouseOver afterOnCellMouseUp afterPanelClose afterPanelOpen afterPaste
+afterPluginsInitialized afterRedo afterRemoveCellMeta afterRemoveCol afterRemoveRow afterRender
+afterRenderer afterRowCollapse afterRowExpand afterRowMove afterRowResize afterScrollHorizontally
+afterScrollVertically afterSelection afterSelectionByProp afterSelectionEnd afterSelectionEndByProp
+afterSetCellFormat afterSetCellMeta afterSetCellStyle afterSetDataAtCell afterSetDataAtRowProp
+afterSheetActivate afterSheetAdd afterSheetMove afterSheetRemove afterSheetRename afterUndo
+afterUnhideColumns afterUnhideRows afterUnlisten afterUnmergeCells afterUpdateSettings afterValidate
+afterViewportColumnCalculatorOverride afterViewportRowCalculatorOverride beforeAddChild
+beforeAutofill beforeAutofillInsidePopulate beforeCellAlignment beforeChange beforeChangeRender
+beforeColumnCollapse beforeColumnExpand beforeColumnMove beforeColumnResize beforeColumnSort
+beforeContextMenuSetItems beforeContextMenuShow beforeCopy beforeCreateCol beforeCreateRow beforeCut
+beforeDetachChild beforeDrawBorders beforeDropdownMenuSetItems beforeDropdownMenuShow beforeFilter
+beforeGetCellMeta beforeHideColumns beforeHideRows beforeImportFile beforeInit beforeInitWalkontable
+beforeKeyDown beforeLanguageChange beforeLoadData beforeMergeCells beforeOnCellContextMenu
+beforeOnCellMouseDown beforeOnCellMouseOut beforeOnCellMouseOver beforeOnCellMouseUp beforePaste
+beforeRedo beforeRemoveCellClassNames beforeRemoveCellMeta beforeRemoveCol beforeRemoveRow
+beforeRender beforeRenderer beforeRowCollapse beforeRowExpand beforeRowMove beforeRowResize
+beforeSetRangeEnd beforeSetRangeStart beforeSetRangeStartOnly beforeSheetActivate beforeSheetAdd
+beforeSheetRemove beforeSheetRename beforeStretchingColumnWidth beforeTouchScroll beforeUndo
+beforeUnhideColumns beforeUnhideRows beforeUnmergeCells beforeValidate beforeValueRender construct
+init modifyAutofillRange modifyCol modifyColHeader modifyColWidth modifyColumnHeaderHeight
+modifyCopyableRange modifyData modifyGetCellCoords modifyRow modifyRowData modifyRowHeader
+modifyRowHeaderWidth modifyRowHeight modifyTransformEnd modifyTransformStart persistentStateLoad
+persistentStateReset persistentStateSave unmodifyCol unmodifyRow
+```
+
 ## Migration gates
 
 1. Extract a used boundary while the existing backend still executes it. Preserve the old behavior, including
