@@ -176,3 +176,18 @@ tools/in-playwright-docker.sh node tools/performance/temporal-sort.mjs \
 
 Rebuild the candidate and repeat with a different output path. Preserve baseline/candidate bundles to repeat
 in reverse order on the same idle host. Raw samples, median/p95, browser version and bundle hashes are saved.
+
+## Private rendering engine
+
+The experimental TypeScript engine has an equivalent Canvas/minimal-DOM control:
+
+```sh
+node tools/engine-lab/build.mjs
+tools/in-playwright-docker.sh node tools/performance/engine.mjs
+```
+
+See [the lab contracts and limitations](../engine-lab/README.md). This runs on the separate engine branch,
+not through the production Core renderer. It checks identical visible scenes and records trusted keyboard
+handler timings separately from scripted scroll submission and whole-sequence CDP counters. It does not
+measure hardware presentation or establish production plugin compatibility. Raw reports are ignored under
+`tools/performance/results/`. Keep measurements isolated from builds and test suites.

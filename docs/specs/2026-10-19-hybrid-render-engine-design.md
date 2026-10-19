@@ -184,3 +184,37 @@ Every implementation PR follows the repository template, leaves both maintainer 
 before/after evidence and passes lint, typecheck, unit, public types, build, dist, all five browser suites,
 docs build and docs smoke before review. Docs-model comparisons apply when touching the documented source
 entry points. Production speed claims need measurements of the integrated engine, not extrapolation from the lab.
+
+## Fixed-cell engine checkpoint
+
+The private implementation now lives in `packages/sheet/src/rendering/engine/`, with a runnable
+[development harness](../../tools/engine-lab/README.md). `GridEngine` uses arithmetic uniform geometry,
+a shared bounded scene, Canvas/minimal-DOM painters, a separate selection overlay and a native textarea.
+Its source port delegates value reads, writes and selection ownership to the caller. The generated harness
+source has sparse edits; no data-order or per-row geometry array is allocated by the engine.
+
+The class implements the internal command shape, but is not installed in TableView and does not implement
+legacy TD queries. No public renderer selector, plugin migration or replacement claim is part of this
+checkpoint. Existing DOM behavior continues through the previously tested adapter. The earlier Vue/frozen
+pane lab remains separate; its features are not implied by this new implementation.
+
+Selection-only changes within the viewport do not reread cell values or repaint content. Explicit data
+invalidation rebuilds the visible scene. The editor commits on Enter/Tab or when scrolled outside full view,
+cancels on Escape, and pins during composition until composition ends. Destruction cancels pending work,
+disconnects the observer/listeners and releases Canvas backing dimensions. Full screen-reader, clipboard,
+real IME, range-selection and production editor behavior remain unimplemented.
+
+A new deep-editor browser check failed in Firefox before a logical-anchor correction: native offset rounding
+at compressed scroll positions made a revealed cell slightly fall outside full view, immediately closing its
+editor. Programmatic reveal now retains exact logical coordinates until native movement changes the physical
+position. This fixes the new private implementation, not a reported production defect. A trusted-wheel
+distance check also failed before normalization: projected native scrolling did not preserve the wheel
+event's logical pixel delta at one million rows. Wheel deltas now use logical pixels; native scrollbar/touch
+movement still has browser-dependent precision. Structural anchor preservation and variable geometry remain
+later work.
+
+The first Canvas/DOM comparison measures this shared engine only, not a before/after production speed-up.
+It checks identical complete scenes, five fresh-page measured trials after warm-up, alternating pair order,
+and separate trusted-key handler work. Presentation latency and actual screen-reader/IME testing remain
+open gates. Measurements and validation are recorded in the lab observations; step 1 is not release-ready
+merely because its synchronous work is small. No integration or main-targeted PR is authorized by this checkpoint.
