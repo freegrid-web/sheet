@@ -122,8 +122,9 @@ reserve the boundary now without implementing a chart library.
 
 ## Delivery steps
 
-Each implementation PR is based on main and contains a demonstrable vertical slice, not unused scaffolding.
+Develop focused checkpoints on the experimental branch, with working consumers rather than unused scaffolding.
 Keep the existing path and its tests green throughout. Measure each relevant step with `tools/performance`.
+When integration is explicitly requested, split the reviewed work into small main-based PRs.
 
 The agreed compatibility-first starting point precedes the Canvas implementation below: inventory public
 methods/events/plugins and extract the existing backend's eight cell/viewport queries through a used internal

@@ -22,6 +22,8 @@ import type Core from './core';
 import type { GridSettings } from './types';
 import type { RenderQueries } from './rendering/renderQueries';
 import { WalkontableQueries } from './rendering/walkontableQueries';
+import type { RenderCommands } from './rendering/renderCommands';
+import { WalkontableCommands } from './rendering/walkontableCommands';
 
 type Grid = Core;
 type Wt = Walkontable;
@@ -63,6 +65,7 @@ class TableView {
   wt: Wt;
   activeWt: Wt;
   readonly renderQueries: RenderQueries;
+  readonly renderCommands: RenderCommands;
   #isMouseDown = false;
 
   /**
@@ -105,6 +108,7 @@ class TableView {
     this.wt = new Walkontable(walkontableConfig);
     this.activeWt = this.wt;
     this.renderQueries = new WalkontableQueries(() => this.wt);
+    this.renderCommands = new WalkontableCommands(() => this.wt);
 
     this.#registerSpreaderEvents();
   }
@@ -577,7 +581,7 @@ class TableView {
 
   /** Draws the table (fully when the grid asked for a full render). */
   render(): void {
-    this.wt.draw(!this.instance.forceFullRender);
+    this.renderCommands.draw(!this.instance.forceFullRender);
     this.instance.forceFullRender = false;
     this.instance.renderCall = false;
   }
@@ -603,7 +607,7 @@ class TableView {
    * @returns {Boolean}
    */
   scrollViewport(coords: CellCoords, snapToTop?: boolean, snapToRight?: boolean, snapToBottom?: boolean, snapToLeft?: boolean): boolean {
-    return this.wt.scrollViewport(coords, snapToTop, snapToRight, snapToBottom, snapToLeft);
+    return this.renderCommands.scrollViewport(coords, snapToTop, snapToRight, snapToBottom, snapToLeft);
   }
 
   /**
@@ -615,7 +619,7 @@ class TableView {
    * @returns {Boolean}
    */
   scrollViewportHorizontally(column: number, snapToRight?: boolean, snapToLeft?: boolean): boolean {
-    return this.wt.scrollViewportHorizontally(column, snapToRight, snapToLeft);
+    return this.renderCommands.scrollViewportHorizontally(column, snapToRight, snapToLeft);
   }
 
   /**
@@ -627,7 +631,7 @@ class TableView {
    * @returns {Boolean}
    */
   scrollViewportVertically(row: number, snapToTop?: boolean, snapToBottom?: boolean): boolean {
-    return this.wt.scrollViewportVertically(row, snapToTop, snapToBottom);
+    return this.renderCommands.scrollViewportVertically(row, snapToTop, snapToBottom);
   }
 
   /**
@@ -745,7 +749,7 @@ class TableView {
 
   /** Destroys Walkontable and removes the listeners. */
   destroy(): void {
-    this.wt.destroy();
+    this.renderCommands.destroy();
     this.eventManager.destroy();
   }
 }

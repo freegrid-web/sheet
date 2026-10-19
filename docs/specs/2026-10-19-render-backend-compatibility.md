@@ -18,6 +18,21 @@ coordinates of child nodes, offscreen nulls, detached public methods, buffers an
 sorting/custom TD renderers, before/after render hooks and source replacement. They do not certify all APIs.
 Existing Core/plugin/Walkontable suites remain the broader behavioral baseline.
 
+## Command and lifecycle checkpoint on the engine branch
+
+`RenderCommands` now carries synchronous draw, full-cell/row-only/column-only scrolling and engine destruction.
+`TableView` uses the live Walkontable command adapter. Core render flags remain owned by the view and are
+cleared after a completed draw, in the original order. The view destroys its event manager after engine
+cleanup. The adapter preserves optional snap arguments and return values without introducing a scheduler.
+
+Four additional contract specs pass on the pre-extraction engine in Chromium, Firefox and WebKit: snap edges
+and independent axes (including fixed/invalid/unrendered requests); synchronous render-hook order and flags;
+interrupted hidden draws and recovery; and DOM/listener disposal before afterDestroy while another grid works.
+The existing query, method-list, plugin and broader render/destroy suites remain required regression controls.
+
+This checkpoint is developed on `experiment/render-engine`, not as another main-targeted PR. It adds no public
+backend setting and does not establish Canvas compatibility for any plugin or event listed below.
+
 ## Behavior families
 
 | Family | Required compatibility | Current boundary / next work |
