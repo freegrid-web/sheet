@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Hybrid grid experiment</title><link rel="stylesheet" href="/styles.css"></head><body>
+<h1>Canvas + DOM cell experiment</h1>
+<p>Standalone lab. Double-click or press Enter to edit; arrows select. Vue buttons retain votes by record ID.</p>
+<form id="controls">
+<label>Renderer <select name="renderer"><option value="canvas">Canvas + DOM</option><option value="dom">DOM control</option></select></label>
+<label>Rows <select name="rows"><option>100</option><option selected>100000</option><option>1000000</option></select></label>
+<label>Columns <select name="columns"><option>20</option><option selected>200</option><option>5000</option></select></label>
+<label><input name="rich" type="checkbox" checked> Vue cells</label>
+<label><input name="varied" type="checkbox" checked> Variable sizes</label>
+<label><input name="frozen" type="checkbox" checked> Freeze 2 rows / columns</label>
+<button>Apply / reset</button><button id="sort" type="button">Sort record ID</button>
+<button id="last" type="button">Last cell</button><button id="home" type="button">First cell</button>
+<button id="resize" type="button">Resize selected row / column</button></form>
+<p id="info">Loading…</p><main id="grid"></main>
+<p>Generated values, real row permutation; not a fully stored spreadsheet. Offscreen editors commit. Apply resets data.</p>
+<script type="module" src="/app.mjs"></script></body></html>

@@ -1,9 +1,14 @@
 # FreeSheet hybrid rendering engine
 
-Status: proposed implementation plan following the authorized 2026-10-19 hybrid experiment.
+Status: experimental development on `experiment/render-engine`, following the authorized 2026-10-19 hybrid experiment.
 Production still uses the existing DOM engine. This proposal does not change a public setting or remove it.
 The earlier [DOM decision](2026-10-15-dom-rendering-and-canvas-decision.md) remains the production baseline;
 this document proposes how to investigate and introduce a replacement, rather than declaring parity.
+
+Development stays on this separate branch. Do not merge it into main or publish incremental main-targeted PRs
+until the maintainer explicitly chooses to integrate it. PR #146 is a draft reference for the initial query
+extraction; further engine commits belong to this branch. Internal checkpoints still need behavior and
+performance evidence, with the full repository gates before integration review.
 
 ## Outcome
 
@@ -15,7 +20,7 @@ Keep FreeSheet's data, formulas, sorting, history and workbook ownership outside
 geometry, visible scenes, painting, hit testing and host placement. Integration uses an adapter; it must not
 start a second independent spreadsheet model.
 
-The local, unpublished experiment in `tools/hybrid-grid/` demonstrates a shared Canvas/DOM controller, variable dimensions,
+The standalone experiment in `tools/hybrid-grid/` demonstrates a shared Canvas/DOM controller, variable dimensions,
 frozen panes, editing and actual Vue hosts with stable record state. Its generated data, record-ID sort and
 small component set do not establish production compatibility. Its model and controller are not a drop-in
 implementation of this proposal. React, Angular and Svelte integration remains untested.
