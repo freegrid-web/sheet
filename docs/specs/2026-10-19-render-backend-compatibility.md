@@ -33,6 +33,36 @@ The existing query, method-list, plugin and broader render/destroy suites remain
 This checkpoint is developed on `experiment/render-engine`, not as another main-targeted PR. It adds no public
 backend setting and does not establish Canvas compatibility for any plugin or event listed below.
 
+### Command checkpoint regression controls
+
+Three measured fresh-page trials plus one discarded warm-up per case, 30 frames and source observation off
+in both runs, using `tools/performance/scalability.mjs`. The before build is the archived query-only production
+bundle (same runtime implementation as `61d5138f`); the after build is `74728119`.
+
+| Case | Constructor median ms, before / after | Scroll ScriptDuration median ms, before / after | Scroll range ms, before / after |
+| --- | ---: | ---: | --- |
+| small | 43.0 / 41.5 | 53.2 / 53.2 | 52.7–53.8 / 52.3–54.0 |
+| tall100k | 149.2 / 148.8 | 68.3 / 71.0 | 66.6–70.2 / 67.4–72.5 |
+| tall1m | 1087.4 / 1090.4 | 228.2 / 214.9 | 221.9–229.0 / 213.9–229.7 |
+| wide | 67.1 / 66.3 | 614.2 / 612.3 | 605.9–621.2 / 611.2–615.8 |
+
+ScriptDuration covers the whole 31-mutation scroll sequence, not one frame or input-to-display latency.
+The mixed differences in this single pair do not support a speed claim. Viewport snapshots, scroll extents,
+DOM cell counts and minimum sort-key checks match across all 24 measured samples.
+
+Environment: Intel(R) Core(TM) i7-14700KF, Chromium 156.0.8078.4, Node v24.21.0.
+Before bundle SHA-256: `e076f762e34802b9ae8050feb3b3c982e8a99ca26a067439fa98fd4f97f35709`.
+After bundle SHA-256: `58f74d2f4f39d6cf485e4158b6943058aa127513fd049ee28281b6afd88162c8`.
+Raw complete reports are ignored at `tools/performance/results/render-command-{before,after}.json`.
+
+### Command checkpoint validation
+
+Lint, typecheck, unit (672), public types, build, dist (24), docs build and docs smoke passed. Full Chromium
+and minified suites each ran 2451 specs with no failures; Walkontable ran 264 specs with no failures.
+Firefox had 14 matched known failures and WebKit had 13 matched known failures, with no unexpected failures.
+Existing pending counts and baseline files were unchanged. The public reference model remains identical.
+Four command contract specs also passed on the old bundle in all three browsers before extraction.
+
 ## Behavior families
 
 | Family | Required compatibility | Current boundary / next work |
