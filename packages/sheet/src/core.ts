@@ -2194,7 +2194,7 @@ class Core {
    * ```
    */
   getCoords(element: Element) {
-    return this.view.wt.wtTable.getCoords.call(this.view.wt.wtTable, element);
+    return this.view.renderQueries.getCoords(element);
   }
 
 
@@ -3737,7 +3737,7 @@ class Core {
    * @returns {Number} Visual index of first rendered row.
    */
   rowOffset() {
-    return this.view.wt.wtTable.getFirstRenderedRow();
+    return this.view.renderQueries.rowOffset();
   }
 
 
@@ -3749,7 +3749,7 @@ class Core {
    * @returns {Number} Visual index of the first visible column.
    */
   colOffset() {
-    return this.view.wt.wtTable.getFirstRenderedColumn();
+    return this.view.renderQueries.colOffset();
   }
 
 
@@ -3761,7 +3761,7 @@ class Core {
    * @returns {Number} Returns -1 if table is not visible.
    */
   countRenderedRows() {
-    return this.view.wt.drawn ? this.view.wt.wtTable.getRenderedRowsCount() : -1;
+    return this.view.renderQueries.countRenderedRows();
   }
 
 
@@ -3773,7 +3773,7 @@ class Core {
    * @returns {Number} Number of visible rows or -1.
    */
   countVisibleRows() {
-    return this.view.wt.drawn ? this.view.wt.wtTable.getVisibleRowsCount() : -1;
+    return this.view.renderQueries.countVisibleRows();
   }
 
 
@@ -3785,7 +3785,7 @@ class Core {
    * @returns {Number} Returns -1 if table is not visible.
    */
   countRenderedCols() {
-    return this.view.wt.drawn ? this.view.wt.wtTable.getRenderedColumnsCount() : -1;
+    return this.view.renderQueries.countRenderedCols();
   }
 
 
@@ -3797,7 +3797,7 @@ class Core {
    * @return {Number} Number of visible columns or -1.
    */
   countVisibleCols() {
-    return this.view.wt.drawn ? this.view.wt.wtTable.getVisibleColumnsCount() : -1;
+    return this.view.renderQueries.countVisibleCols();
   }
 
 
